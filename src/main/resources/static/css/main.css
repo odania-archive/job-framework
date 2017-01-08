@@ -1,0 +1,23 @@
+.pipeline-item {
+	float: left;
+	margin-right: 10px;
+	margin-bottom: 20px;
+	padding: 4px;
+	border: 1px solid black;
+}
+
+.pipeline-item .title {
+	text-align: center;
+}
+
+.pipeline-item .job-item {
+	border-top: 1px solid slategrey;
+}
+
+td.build-success {
+	background-color: green;
+}
+
+td.build-error {
+	background-color: red;
+}

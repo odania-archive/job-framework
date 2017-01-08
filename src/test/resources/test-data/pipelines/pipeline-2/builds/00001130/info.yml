@@ -1,0 +1,26 @@
+---
+buildNr: 1130
+startedAt: 1483910491192
+finishedAt: 1483910491234
+duration: 42
+resultStatus: "SUCCESS"
+currentState: "SUCCESS"
+stepStates:
+  Step 1: "SUCCESS"
+  Step 2: "SUCCESS"
+results:
+  Step 1:
+    exitCode: 0
+    resultStatus: "SUCCESS"
+    output: "Executing Step Step 1 ==============================\n\n=== Executing\
+      \ Job [Step 1] Job 1 ===========================\n\npipeline-2 [Step 1] Job\
+      \ 1\n\n=== Executing Job [Step 1] Job 2 ===========================\n\npipeline-2\
+      \ [Step 1] Job 2"
+  Step 2:
+    exitCode: 0
+    resultStatus: "SUCCESS"
+    output: "Executing Step Step 2 ==============================\n\n=== Executing\
+      \ Job [Step 2] Job 1 ===========================\n\npipeline-2 [Step 2] Job\
+      \ 1\n\n=== Executing Job [Step 2] Job 2 ===========================\n\npipeline-2\
+      \ [Step 2] Job 2"
+parameter: {}

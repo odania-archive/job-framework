@@ -1,0 +1,74 @@
+---
+description: This is Pipeline Number 1
+multipleExecutions: true
+paramsSteps:
+  - name: Prepare Step
+    params:
+      - name: p1
+        paramType: STRING
+      - name: p2
+        paramType: CHOICE
+        dependencies:
+          - choices:
+              allOption 1: allOption 1
+          - param: p1
+            value: test
+            choices:
+              dependentOption-id1: dependentOption 1
+              dependentOption-id2: dependentOption 2
+      - name: p3
+        paramType: STRING
+        dependencies:
+          - param: p1
+            values:
+              - test
+              - test2
+            display: false
+      - name: p4
+        paramType: CHOICE_MULTIPLE
+        dependencies:
+          - choices:
+              Multiple 1: Multiple 1
+              Multiple 2: Multiple 2
+      - name: p5
+        paramType: BOOLEAN
+
+steps:
+  - name: Step 1
+    execute: SEQUENCE
+    triggerType: AUTO
+    jobs:
+      - name: "[Step 1] Job 1"
+        script: "echo 'pipeline-1 [Step 1] Job 1'"
+      - name: "[Step 1] Job 2"
+        script: "echo 'pipeline-1 [Step 1] Job 2'"
+  - name: Step 2a
+    execute: PARALLEL
+    onSuccess: Step 3a
+    jobs:
+      - name: "[Step 2] Parallel Step 1"
+        script: "echo 'pipeline-1 [Step 2-Parallel Step 1] Job 1'"
+  - name: Step 2b
+    execute: PARALLEL
+    onSuccess: Step 3b
+    jobs:
+      - name: "[Step 2] Parallel Step 2"
+        script: "echo 'pipeline-1 [Step 2-Parallel Step 2] Job 1'"
+  - name: Step 3a
+    execute: ON_TRIGGER
+    jobs:
+      - name: "[Step 3] Parallel Step 1"
+        script: "echo 'pipeline-1 [Step 3-Parallel Step 1] Job 1'"
+  - name: Step 3b
+    execute: ON_TRIGGER
+    jobs:
+      - name: "[Step 3] Parallel Step 2"
+        script: "echo 'pipeline-1 [Step 3-Parallel Step 2] Job 1'"
+  - name: Step 4
+    execute: SEQUENCE
+    triggerType: AUTO
+    jobs:
+      - name: "[Step 3] Job 1"
+        script: "echo 'pipeline-1 [Step 3] Job 1'"
+      - name: "[Step 3] Job 2"
+        script: "echo 'pipeline-1 [Step 3] Job 2'"

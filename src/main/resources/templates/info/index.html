@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" th:include="layouts/application :: page">
+<head>
+	<title>Job Framework - Info</title>
+</head>
+<body>
+<div th:fragment="content">
+	<p th:text="'Info'"/>
+
+	<table class="table table-bordered table-striped">
+		<tr>
+			<th>Queue Size</th>
+			<td th:text="${executorManager.queueSize()}"></td>
+		</tr>
+		<tr>
+			<th>Active Pipelines</th>
+			<td th:text="${executorManager.activePipelines()}"></td>
+		</tr>
+		<tr>
+			<th>Pipelines</th>
+			<td th:text="${pipelines.size()}"></td>
+		</tr>
+	</table>
+
+</div>
+</body>
+</html>

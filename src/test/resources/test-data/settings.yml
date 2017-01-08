@@ -1,0 +1,14 @@
+---
+resultCodes:
+  0: SUCCESS
+  1: WARNING
+  2: ERROR
+  default: ERROR
+views:
+  view-1:
+    pattern: pipeline.*
+  view-2:
+    pipelines:
+      - pipeline-2
+  view 3:
+    pattern: .*1

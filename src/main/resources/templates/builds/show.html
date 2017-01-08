@@ -1,0 +1,66 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" th:include="layouts/application :: page">
+<head>
+	<title>Job Framework - Pipeline <span th:text="${pipeline.name}"></span></title>
+</head>
+<body>
+<div th:fragment="content">
+	<table class="table table-bordered table-striped">
+		<tbody>
+		<tr>
+			<th>ID</th>
+			<td th:text="${pipeline.id}"></td>
+		</tr>
+		<tr>
+			<th>Name</th>
+			<td th:text="${pipeline.name}"></td>
+		</tr>
+		<tr>
+			<th>Build ID</th>
+			<td th:text="${build.buildNr}"></td>
+		</tr>
+		<tr>
+			<th>Result</th>
+			<td th:text="${build.currentState}"></td>
+		</tr>
+		<tr>
+			<th>Time</th>
+			<td>
+				<span th:text="${build.startedAt}"></span> - <span th:text="${build.finishedAt}"></span>
+			</td>
+		</tr>
+		<tr>
+			<th>Duration</th>
+			<td th:text="${build.duration}"></td>
+		</tr>
+		</tbody>
+	</table>
+
+	<div th:each="result : ${build.results}">
+		<h2 class="title" th:text="${result.key}"></h2>
+
+		<div class="information">
+			<table class="table table-bordered table-striped">
+				<tr>
+					<th>Result</th>
+					<td th:text="${result.value.resultStatus}"></td>
+				</tr>
+				<tr>
+					<th>Exit Code</th>
+					<td th:text="${result.value.exitCode}"></td>
+				</tr>
+				<tr>
+					<th>Output</th>
+					<td>
+						<pre th:text="${result.value.output}"></pre>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
+	<div style="clear: both;"></div>
+
+</div>
+</body>
+</html>

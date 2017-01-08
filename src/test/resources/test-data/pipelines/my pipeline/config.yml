@@ -1,0 +1,49 @@
+---
+description: This is Pipeline Number 3
+multipleExecutions: true
+notify:
+  email:
+    emails: mike@odania-it.com
+paramsSteps:
+  - name: This is Step 1
+    params:
+      - name: p1
+        paramType: STRING
+      - name: p2
+        paramType: CHOICE
+        dependencies:
+          - choices:
+              allOption 1: allOption 1
+          - param: p1
+            value: test
+            choices:
+              dependentOption-id1: dependentOption 1
+              dependentOption-id2: dependentOption 2
+  - name: This is Step 2
+    params:
+      - name: p3
+        paramType: STRING
+        dependencies:
+          - param: p1
+            values:
+              - test
+              - test2
+            display: false
+      - name: p4
+        paramType: CHOICE_MULTIPLE
+        dependencies:
+          - choices:
+              Multiple 1: Multiple 1
+              Multiple 2: Multiple 2
+      - name: p5
+        paramType: BOOLEAN
+
+steps:
+  - name: Step 1
+    execute: SEQUENCE
+    triggerType: AUTO
+    jobs:
+      - name: "[Step 1] Job 1"
+        script: "echo 'pipeline-3 [Step 1] Job 1'"
+      - name: "[Step 1] Job 2"
+        script: "echo 'pipeline-3 [Step 1] Job 2'"

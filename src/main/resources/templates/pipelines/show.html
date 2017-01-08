@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" th:include="layouts/application :: page">
+<head>
+	<title>Job Framework - Pipeline <span th:text="${pipeline.name}"></span></title>
+</head>
+<body>
+<div th:fragment="content">
+	<table class="table table-bordered table-striped">
+		<tbody>
+		<tr>
+			<th>ID</th>
+			<td th:text="${pipeline.id}"></td>
+		</tr>
+		<tr>
+			<th>Name</th>
+			<td th:text="${pipeline.name}"></td>
+		</tr>
+		<tr>
+			<th>Description</th>
+			<td th:text="${pipeline.description}"></td>
+		</tr>
+		<tr>
+			<th>Cron</th>
+			<td th:text="${pipeline.cron}"></td>
+		</tr>
+		<tr>
+			<th>Last run</th>
+			<td th:if="${!pipeline.state.builds.isEmpty()}">
+				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/latest'}">Latest run ...</a>
+			</td>
+			<td th:if="${pipeline.state.builds.isEmpty()}">
+				-
+			</td>
+		</tr>
+		<tr>
+			<th>Last successfull run</th>
+			<td th:if="${pipeline.state.lastSuccessfulRun != null}">
+				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${pipeline.state.lastSuccessfulRun}}" th:text="${pipeline.state.lastSuccessfulRun}">Last Successfull run ...</a>
+			</td>
+			<td th:if="${pipeline.state.lastSuccessfulRun == null}">
+				-
+			</td>
+		</tr>
+		<tr>
+			<th>Last failed run</th>
+			<td th:if="${pipeline.state.lastFailedRun != null}">
+				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${pipeline.state.lastFailedRun}}" th:text="${pipeline.state.lastFailedRun}">Last Failed run ...</a>
+			</td>
+			<td th:if="${pipeline.state.lastFailedRun == null}">
+				-
+			</td>
+		</tr>
+		<tr>
+			<th>Last duration</th>
+			<td th:text="${pipeline.state.lastDuration}"></td>
+		</tr>
+		<tr>
+			<th></th>
+			<td><a href="run.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/run'}">Run</a></td>
+		</tr>
+		</tbody>
+	</table>
+
+	<div th:each="step : ${pipeline.steps}" class="pipeline-item">
+		<div class="title" th:text="${step.name}"></div>
+
+		<div class="trigger" th:text="${step.triggerType}"></div>
+
+		<div th:each="job : ${step.jobs}" class="job-item">
+			<div class="title" th:text="${job.name}"></div>
+		</div>
+	</div>
+
+	<div style="clear: both;"></div>
+
+	<table class="table table-bordered table-striped">
+		<thead>
+		<tr>
+			<td>Build Number</td>
+			<td th:each="step : ${pipeline.steps}" th:text="${step.name}"></td>
+		</tr>
+		<tr th:each="build : ${builds}">
+			<td th:text="${build.buildNr}"></td>
+			<td th:each="step : ${pipeline.steps}" th:class="${build.getResults().get(step.name).resultStatus.name() == 'SUCCESS'} ? 'build-success' : 'build-error'">
+				<span th:text="${build.getResults().get(step.name).resultStatus}"></span>
+				<br/>
+				Exit Code: <span th:text="${build.results.get(step.name).exitCode}"></span>
+			</td>
+		</tr>
+		</thead>
+	</table>
+
+</div>
+</body>
+</html>

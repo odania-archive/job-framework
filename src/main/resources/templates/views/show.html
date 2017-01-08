@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" th:include="layouts/application :: page">
+<head>
+	<title>Job Framework - Pipeline <span th:text="${pipeline.name}"></span></title>
+</head>
+<body>
+<div th:fragment="content">
+	<table class="table table-bordered table-striped">
+		<thead>
+		<tr>
+			<th>Name</th>
+			<td th:text="${viewId}"></td>
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+			<th>Pattern</th>
+			<td th:text="${view.pattern}"></td>
+		</tr>
+		<tr>
+			<th>Pipelines</th>
+			<td th:text="${view.pipelines}"></td>
+		</tr>
+		</tbody>
+	</table>
+
+	<div th:replace="pipelines/_list_pipelines :: list-pipelines">
+		List Pipelines
+	</div>
+
+</div>
+</body>
+</html>

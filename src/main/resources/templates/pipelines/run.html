@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" th:include="layouts/application :: page">
+<head>
+	<title>Job Framework - Pipeline <span th:text="${pipeline.name}"></span></title>
+</head>
+<body>
+<div th:fragment="content">
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		var pipelineId = [[${pipeline.id}]];
+		/*]]>*/
+	</script>
+
+	<div ng-controller="PipelineController">
+		<p th:text="'Pipeline'"/>
+
+		<table class="table table-bordered table-striped table-hover">
+			<tbody>
+			<tr>
+				<th>ID</th>
+				<td th:text="${pipeline.id}"></td>
+			</tr>
+			<tr>
+				<th>Name</th>
+				<td th:text="${pipeline.name}"></td>
+			</tr>
+			<tr>
+				<th>Step</th>
+				<td th:text="${currentStep}"></td>
+			</tr>
+			</tbody>
+		</table>
+
+		<form novalidate="novalidate" class="simple-form">
+			<table class="table table-bordered table-striped table-hover">
+				<thead>
+				<tr>
+					<td th:colspan="2">Step: {{ currentStep.name }}</td>
+				</tr>
+				<tr>
+					<td>Name</td>
+					<td>Value</td>
+				</tr>
+				</thead>
+				<tbody>
+				<tr ng-repeat="param in currentParams" ng-if="isVisible(param)">
+					<td>{{ param.name }}</td>
+					<td ng-if="param.paramType == 'STRING'">
+						<input type="text" ng-model="data[param.name]"/>
+					</td>
+					<td ng-if="param.paramType == 'CHOICE'">
+						<select ng-model="data[param.name]">
+							<option ng-repeat="(id, name) in getOptions(param)" value="{{ id }}">{{ name }}</option>
+						</select>
+					</td>
+					<td ng-if="param.paramType == 'CHOICE_MULTIPLE'">
+						<select ng-model="data[param.name]" multiple="multiple">
+							<option ng-repeat="(id, name) in getOptions(param)" value="{{ id }}">{{ name }}</option>
+						</select>
+					</td>
+					<td ng-if="param.paramType == 'BOOLEAN'">
+						<input type="checkbox" ng-model="data[param.name]" value="0" />
+					</td>
+				</tr>
+				</tbody>
+				<tfoot>
+				<tr>
+					<td colspan="2">
+						<button class="btn btn-default" ng-click="nextStep()" ng-if="hasNextStep">Next</button>
+						<button class="btn btn-default" ng-click="previousStep()" ng-if="!hasNextStep">Previous</button>
+						<button class="btn btn-default" ng-click="exec()" ng-if="!hasNextStep">Execute</button>
+					</td>
+				</tr>
+				</tfoot>
+			</table>
+
+			<div>
+				Data:
+				{{ data }}
+			</div>
+		</form>
+	</div>
+</div>
+</body>
+</html>
