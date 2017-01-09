@@ -53,7 +53,7 @@ jobFramework.controller('PipelineController', ['$scope', '$http', function ($sco
 			//console.debug("[" + param.name + "] Looking for hidden value of " + value.param + " CurrentValue: " + currentValue);
 
 			angular.forEach(value.values, function(value) {
-				if (currentValue == value) {
+				if (currentValue === value) {
 					//console.debug("Found isHidden " + value + " - " + display);
 					isVisible = display;
 				}
@@ -69,7 +69,7 @@ jobFramework.controller('PipelineController', ['$scope', '$http', function ($sco
 
 		angular.forEach(param.dependencies, function(value) {
 
-			if (value.param == null) {
+			if (value.param === null) {
 				addChoices(options, value.choices);
 			} else {
 				var currentValue = $scope.data[value.param];
@@ -78,7 +78,7 @@ jobFramework.controller('PipelineController', ['$scope', '$http', function ($sco
 				//console.debug("[" + param.name + "] Looking for value of " + value.param + " CurrentValue: " + currentValue);
 
 				angular.forEach(value.values, function(value) {
-					if (currentValue == value) {
+					if (currentValue === value) {
 						//console.debug("Found " + value + " - " + display);
 
 						if (display) {
