@@ -43,20 +43,18 @@ public class ExecutorManagerTest {
 	@Mock
 	private JobFrameworkConfig jobFrameworkConfig;
 
-	private Pipeline pipeline = new Pipeline();
-
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		when(jobFrameworkConfig.getWorkspacePath()).thenReturn(new File("/tmp/job-framework-test/workspace"));
 		when(jobFrameworkConfig.getPipelinePath()).thenReturn("/tmp/job-framework-test/pipelines");
-
-		pipeline = PipelineFactory.generate();
-		pipelineManager.getPipelines().put(pipeline.getId(), pipeline);
 	}
 
 	@Test
 	public void executePipeline() throws IOException, BuildException, InterruptedException {
+		Pipeline pipeline = PipelineFactory.generate();
+		pipelineManager.getPipelines().put(pipeline.getId(), pipeline);
+
 		PipelineState state = pipeline.getState();
 		state.setPipelineDirectory(new File("/tmp/job-framework-test/builds"));
 		Build lastBuild = state.getLastBuild();
@@ -69,7 +67,6 @@ public class ExecutorManagerTest {
 		build.setWorkspaceDir(new File("/tmp/job-framework-test/builds/executor-manager-test"));
 
 		finishExecution(build);
-
 		assertEquals(pipeline.getSteps().size(), build.getResults().size());
 
 		for (Step step : pipeline.getSteps()) {
@@ -86,9 +83,16 @@ public class ExecutorManagerTest {
 
 	@Test
 	public void executePipelineWithParams() throws IOException, BuildException {
+		Pipeline pipeline = PipelineFactory.generate();
+		pipelineManager.getPipelines().put(pipeline.getId(), pipeline);
+
+		PipelineState state = pipeline.getState();
+		state.setPipelineDirectory(new File("/tmp/job-framework-test/builds"));
+
 		executorManager.enqueue(pipeline, ParameterFactory.generate());
 		Set<Build> builds = executorManager.checkQueue();
 		Build build = builds.iterator().next();
+		build.setWorkspaceDir(new File("/tmp/job-framework-test/builds/executor-manager-test"));
 		finishExecution(build);
 
 		assertEquals(pipeline.getSteps().size(), build.getResults().size());

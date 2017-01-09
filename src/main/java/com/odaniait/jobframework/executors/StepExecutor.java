@@ -39,7 +39,7 @@ public class StepExecutor implements Runnable {
 
 		String buildDir = build.getWorkspaceDir().getAbsolutePath();
 		File stepBuildDir = new File(buildDir + "/" + step.getName().replace(" ", "-"));
-		if (!stepBuildDir.mkdirs()) {
+		if (!stepBuildDir.isDirectory() && !stepBuildDir.mkdirs()) {
 			logger.error("Could not create step build directory " + stepBuildDir);
 		}
 
