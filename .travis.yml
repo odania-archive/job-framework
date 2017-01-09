@@ -12,3 +12,8 @@ cache:
 addons:
   code_climate:
     repo_token: ad9af39185bc469229647cdeaf13e9faae345fa75bb9054cc4683a67dcfd25e1
+env:
+  global:
+    - COVERALLS_REPO_TOKEN=4iwbHAFuPJzAeactTyXCExMGatbVYbxi1
+after_success:
+  - ./gradlew cobertura coveralls
