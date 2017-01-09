@@ -2,6 +2,25 @@
 
 This is a basic Job Management Framework.
 
+## Test
+
+You can simply test it with docker-compose.
+If you have installed it just execute the following steps:
+ 
+ ```
+ git clone https://github.com/Odania-IT/job-framework.git
+ cd job-framework
+ docker-compose up
+ ```
+ 
+ Afterwords you can go to:
+ - http://www.lvh.me:8000 <- Application
+ - http://www.lvh.me:1080 <- Dummy Mail Client
+ 
+ If you want to test your own pipeline just mount a volume to /srv.
+ Example content can be found here: 
+ https://github.com/Odania-IT/job-framework/tree/master/docker
+
 ## Pipelines
 
 Everything that can be defined is a pipeline. A pipeline consists of multiple steps.
@@ -65,6 +84,10 @@ The configuration is done in YAML files. The views are configured in the setting
 
 Pipelines are defined in the pipelines folder. The folder is used as the name of the pipeline.
 The pipeline configuration is defined in the config.yml folder.
+
+# Todo
+
+- Automatic reloading of pages (builds, etc.)
 
 # FAQ
 

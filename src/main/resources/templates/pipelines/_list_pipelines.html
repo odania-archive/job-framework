@@ -23,8 +23,14 @@
 		<tr th:each="pipeline : ${pipelines}">
 			<td th:text="${pipeline.value.state.currentState}"></td>
 			<td><a href="view.html" th:href="@{'/pipelines/' + ${pipeline.key}}" th:text="${pipeline.key}">Title ...</a></td>
-			<td th:text="${pipeline.value.state.lastSuccessfulRun}"></td>
-			<td th:text="${pipeline.value.state.lastFailedRun}"></td>
+			<td>
+				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.key} + '/builds/' + ${pipeline.value.state.lastSuccessfulRun}}"
+					th:text="${pipeline.value.state.lastSuccessfulRun != null} ? ${pipeline.value.state.lastSuccessfulRun} : '-'"></a>
+			</td>
+			<td>
+				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.key} + '/builds/' + ${pipeline.value.state.lastFailedRun}}"
+					 th:text="${pipeline.value.state.lastFailedRun != null} ? ${pipeline.value.state.lastFailedRun} : '-'"></a>
+			</td>
 			<td th:text="${pipeline.value.state.lastDuration}"></td>
 			<td><a href="run.html" th:href="@{'/pipelines/' + ${pipeline.value.id} + '/run'}">Run</a></td>
 		</tr>

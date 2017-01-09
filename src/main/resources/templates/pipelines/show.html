@@ -9,11 +9,9 @@
 		<tbody>
 		<tr>
 			<th>ID</th>
-			<td th:text="${pipeline.id}"></td>
-		</tr>
-		<tr>
-			<th>Name</th>
-			<td th:text="${pipeline.name}"></td>
+			<td>
+				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id}}" th:text="${pipeline.id}"></a>
+			</td>
 		</tr>
 		<tr>
 			<th>Description</th>
@@ -80,11 +78,15 @@
 			<td th:each="step : ${pipeline.steps}" th:text="${step.name}"></td>
 		</tr>
 		<tr th:each="build : ${builds}">
-			<td th:text="${build.buildNr}"></td>
+			<td>
+				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${build.buildNr}}" th:text="${build.buildNr}"></a>
+			</td>
 			<td th:each="step : ${pipeline.steps}" th:class="${build.getResults().get(step.name).resultStatus.name() == 'SUCCESS'} ? 'build-success' : 'build-error'">
-				<span th:text="${build.getResults().get(step.name).resultStatus}"></span>
-				<br/>
-				Exit Code: <span th:text="${build.results.get(step.name).exitCode}"></span>
+				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${build.buildNr}}">
+					<span th:text="${build.getResults().get(step.name).resultStatus}"></span>
+					<br/>
+					Exit Code: <span th:text="${build.results.get(step.name).exitCode}"></span>
+				</a>
 			</td>
 		</tr>
 		</thead>

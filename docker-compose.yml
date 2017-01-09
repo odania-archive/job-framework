@@ -3,14 +3,29 @@ mailcatcher:
   ports:
     - "2525:2525"
     - "1080:1080"
+  tty: true
+  stdin_open: true
 mongodb:
   image: mongo:latest
   ports:
     - "127.0.0.1:27017:27017"
     - "127.0.0.1:27018:27018"
+  tty: true
+  stdin_open: true
 rockmongo:
   image: odaniait/rockmongo-docker:latest
   ports:
     - "8088:80"
   links:
     - mongodb
+  tty: true
+  stdin_open: true
+jobframework:
+  build: .
+  ports:
+    - "127.0.0.1:8000:8000"
+  links:
+    - mongodb
+    - mailcatcher
+  tty: true
+  stdin_open: true

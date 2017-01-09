@@ -22,7 +22,6 @@ public class Pipeline {
 
 	private String lastStatus;
 
-	private String name;
 	private String description;
 	private String group;
 

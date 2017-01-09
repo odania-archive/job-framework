@@ -1,0 +1,6 @@
+views:
+  Cron View:
+    pipelines:
+      - Cron Example
+  Echo View:
+    pattern: Echo.*

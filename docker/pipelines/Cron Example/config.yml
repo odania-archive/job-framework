@@ -1,0 +1,25 @@
+---
+description: This is a Pipeline Cron Example
+cron: '0 0/5 * * * ?'
+keepBuilds: 12
+multipleExecutions: false
+notify:
+  email:
+    emails: notify@example.com
+steps:
+  - name: Step 1
+    execute: SEQUENCE
+    triggerType: AUTO
+    jobs:
+      - name: "[Step 1] Job 1"
+        script: "echo 'pipeline-2 [Step 1] Job 1'"
+      - name: "[Step 1] Job 2"
+        script: "echo 'pipeline-2 [Step 1] Job 2'"
+  - name: Step 2
+    execute: SEQUENCE
+    triggerType: AUTO
+    jobs:
+      - name: "[Step 2] Job 1"
+        script: "echo 'pipeline-2 [Step 2] Job 1'"
+      - name: "[Step 2] Job 2"
+        script: "echo 'pipeline-2 [Step 2] Job 2'"
