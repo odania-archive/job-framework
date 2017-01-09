@@ -1,6 +1,3 @@
-group 'com.odaniait'
-version '1.0-SNAPSHOT'
-
 buildscript {
 	repositories {
 		mavenCentral()
@@ -10,6 +7,16 @@ buildscript {
 		classpath 'org.springframework:springloaded:1.2.6.RELEASE'
 	}
 }
+
+// Coveralls
+plugins {
+	id 'net.saliman.cobertura' version '2.3.1'
+	id 'com.github.kt3k.coveralls' version '2.7.1'
+}
+cobertura.coverageFormats = ['html', 'xml'] // coveralls plugin depends on xml format report
+
+group 'com.odaniait'
+version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
@@ -21,13 +28,6 @@ targetCompatibility = 1.8
 repositories {
 	mavenCentral()
 }
-
-// Coveralls
-plugins {
-	id 'net.saliman.cobertura' version '2.3.1'
-	id 'com.github.kt3k.coveralls' version '2.7.1'
-}
-cobertura.coverageFormats = ['html', 'xml'] // coveralls plugin depends on xml format report
 
 idea {
 	module {
