@@ -18,6 +18,7 @@ RUN apk update && apk --no-cache add mongodb-tools@edge && \
 COPY . /opt/job-framework
 COPY docker/data /srv
 COPY docker/startup.sh /startup.sh
+COPY docker/startup_docker.sh /startup_docker.sh
 WORKDIR /opt/job-framework
 RUN /opt/job-framework/gradlew assemble
 
