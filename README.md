@@ -88,6 +88,7 @@ The pipeline configuration is defined in the config.yml folder.
 # Todo
 
 - Automatic reloading of pages (builds, etc.)
+- Tags for filtering
 
 # FAQ
 
