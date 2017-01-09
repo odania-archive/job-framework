@@ -1,12 +1,16 @@
 FROM openjdk:8-jdk-alpine
 MAINTAINER Mike Petersen <mike@odania-it.de>
 
-RUN apk add --no-cache bash libstdc++ && rm -rf /var/cache/apk/*
+RUN apk add --no-cache bash libstdc++ sudo && rm -rf /var/cache/apk/*
 
 COPY . /opt/job-framework
-COPY docker /srv
+COPY docker/data /srv
+COPY docker/startup.sh /startup.sh
 WORKDIR /opt/job-framework
 RUN /opt/job-framework/gradlew assemble
 
+RUN adduser -h /srv -s /bin/bash -D -u 1000 jobs
+RUN chown -R jobs:jobs /srv
+
 VOLUME ["/srv"]
-CMD ["/opt/job-framework/gradlew", "docker", "-Dspring.config.location=/srv/application.properties"]
+CMD ["/startup.sh"]
