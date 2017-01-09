@@ -29,4 +29,4 @@ RUN chown -R jobs:jobs /srv
 RUN echo "jobs ALL=(root) NOPASSWD:/usr/bin/pip install ansible" >> /etc/sudoers
 
 VOLUME ["/srv"]
-CMD ["/startup.sh"]
+CMD ["/startup.sh", "/var/lib/docker"]
