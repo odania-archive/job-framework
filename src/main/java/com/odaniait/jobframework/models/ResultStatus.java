@@ -3,7 +3,8 @@ package com.odaniait.jobframework.models;
 public enum ResultStatus {
 	SUCCESS,
 	ABORTED,
-	FAILED;
+	FAILED,
+	NOT_STARTED;
 
 
 	public static ResultStatus getForExitCode(int exitCode) {

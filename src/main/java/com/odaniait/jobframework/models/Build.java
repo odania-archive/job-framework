@@ -84,4 +84,15 @@ public class Build {
 
 		save();
 	}
+
+	@JsonIgnore
+	public ResultStatus getResultStatusFor(String step) {
+		BuildJobResult buildJobResult = results.get(step);
+
+		if (buildJobResult == null) {
+			return ResultStatus.NOT_STARTED;
+		}
+
+		return buildJobResult.getResultStatus();
+	}
 }

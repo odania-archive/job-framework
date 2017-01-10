@@ -62,6 +62,7 @@ public class StepExecutor implements Runnable {
 				writer.close();
 
 				ProcessBuilder builder = new ProcessBuilder(command).redirectErrorStream(true);
+				builder.directory(stepBuildDir);
 				Map<String, String> env = builder.environment();
 				env.put("WORKSPACE", stepBuildDir.getAbsolutePath());
 

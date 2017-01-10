@@ -81,11 +81,12 @@
 			<td>
 				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${build.buildNr}}" th:text="${build.buildNr}"></a>
 			</td>
-			<td th:each="step : ${pipeline.steps}" th:class="${build.getResults().get(step.name).resultStatus.name() == 'SUCCESS'} ? 'build-success' : 'build-error'">
+			<td th:each="step : ${pipeline.steps}" th:class="${build.getResultStatusFor(step.name).name() == 'SUCCESS'} ? 'build-success' : 'build-error'">
 				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${build.buildNr}}">
-					<span th:text="${build.getResults().get(step.name).resultStatus}"></span>
-					<br/>
-					Exit Code: <span th:text="${build.results.get(step.name).exitCode}"></span>
+					<span th:text="${build.getResultStatusFor(step.name)}"></span>
+					<p th:if="${build.results.get(step.name)} != null">
+						Exit Code: <span th:text="${build.results.get(step.name).exitCode}"></span>
+					</p>
 				</a>
 			</td>
 		</tr>
