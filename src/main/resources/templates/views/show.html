@@ -13,13 +13,17 @@
 		</tr>
 		</thead>
 		<tbody>
-		<tr>
+		<tr th:if="${view.pattern} != null">
 			<th>Pattern</th>
 			<td th:text="${view.pattern}"></td>
 		</tr>
-		<tr>
+		<tr th:if="${not #sets.isEmpty(view.pipelines)}">
 			<th>Pipelines</th>
 			<td th:text="${view.pipelines}"></td>
+		</tr>
+		<tr th:if="${not #sets.isEmpty(view.tags)}">
+			<th>Tags</th>
+			<td th:text="${view.tags}"></td>
 		</tr>
 		</tbody>
 	</table>

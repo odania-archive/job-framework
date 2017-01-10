@@ -13,12 +13,15 @@
 			<td>Last Success</td>
 			<td>Last Failure</td>
 			<td>Last Duration</td>
+			<td>Cron</td>
 			<td></td>
 		</tr>
 		</thead>
 		<tbody>
 		<tr th:if="${pipelines.empty}">
-			<td colspan="4">No tasks</td>
+			<td colspan="7">
+				<b>No tasks</b>
+			</td>
 		</tr>
 		<tr th:each="pipeline : ${pipelines}">
 			<td th:text="${pipeline.value.state.currentState}"></td>
@@ -32,6 +35,11 @@
 					 th:text="${pipeline.value.state.lastFailedRun != null} ? ${pipeline.value.state.lastFailedRun} : '-'"></a>
 			</td>
 			<td th:text="${pipeline.value.state.lastDuration}"></td>
+			<td th:if="${pipeline.value.cron} == null">
+				-
+			</td>
+			<td th:if="${pipeline.value.cron} != null" th:text="${pipeline.value.cron}">
+			</td>
 			<td><a href="run.html" th:href="@{'/pipelines/' + ${pipeline.value.id} + '/run'}">Run</a></td>
 		</tr>
 		</tbody>

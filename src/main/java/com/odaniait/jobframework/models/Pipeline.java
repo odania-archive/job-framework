@@ -7,10 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Data
 @EqualsAndHashCode
@@ -35,6 +32,8 @@ public class Pipeline {
 	private List<Step> steps = new ArrayList<>();
 
 	private Map<String, Map<String, String>> notify = new HashMap<>();
+
+	private Set<String> tags = new HashSet<>();
 
 	@JsonIgnore
 	private PipelineState state = new PipelineState();

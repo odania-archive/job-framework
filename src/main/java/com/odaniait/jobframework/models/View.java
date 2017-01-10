@@ -11,4 +11,5 @@ import java.util.Set;
 public class View {
 	private String pattern;
 	private Set<String> pipelines = new HashSet<>();
+	private Set<String> tags = new HashSet<>();
 }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,6 +41,14 @@ public class Views {
 				if (matcher.find()) {
 					pipelines.put(pipelineEntry.getKey(), pipelineEntry.getValue());
 				}
+			}
+		}
+
+		for (Map.Entry<String, Pipeline> pipelineEntry : pipelineManager.getPipelines().entrySet()) {
+			Set<String> pipelineTags = pipelineEntry.getValue().getTags();
+
+			if (pipelineTags.containsAll(view.getTags())) {
+				pipelines.put(pipelineEntry.getKey(), pipelineEntry.getValue());
 			}
 		}
 
