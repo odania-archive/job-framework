@@ -81,8 +81,15 @@ public class StepExecutor implements Runnable {
 				BufferedReader br = new BufferedReader(isr);
 				String line;
 
+				int linesProcessed = 0;
 				while ((line = br.readLine()) != null) {
 					output += line + "\n";
+
+					linesProcessed++;
+					if (linesProcessed >= 10) {
+						build.updateStepOutput(step, output);
+						linesProcessed = 0;
+					}
 				}
 
 				logger.debug("Step " + step.getName() + " output:" + output);
@@ -90,7 +97,7 @@ public class StepExecutor implements Runnable {
 				process.waitFor(); // It seems it takes a second until the process is really finished
 				exitValue = process.exitValue();
 			}
-		} catch (IOException | InterruptedException e) {
+		} catch (IOException | InterruptedException | BuildException e) {
 			logger.error("Error executing Pipeline: " + pipeline.getId() + " Step: " + step.getName(), e);
 		}
 

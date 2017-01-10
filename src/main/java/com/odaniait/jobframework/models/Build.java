@@ -53,12 +53,19 @@ public class Build {
 		mapper.writeValue(infoFile, this);
 	}
 
-	public void setStepResult(Step step, int exitCode, String output) throws IOException, BuildException {
+	public void updateStepOutput(Step step, String output) throws IOException, BuildException {
 		BuildJobResult jobResult = new BuildJobResult();
+		jobResult.setOutput(output);
+		results.put(step.getName(), jobResult);
+		stepStates.put(step.getName(), CurrentState.RUNNING);
+
+		save();
+	}
+
+	public void setStepResult(Step step, int exitCode, String output) throws IOException, BuildException {
+		BuildJobResult jobResult =results.get(step.getName());
 		jobResult.setExitCode(exitCode);
 		jobResult.setOutput(output);
-
-		results.put(step.getName(), jobResult);
 
 		CurrentState stepCurrentState;
 		if (ResultStatus.SUCCESS.equals(jobResult.getResultStatus())) {
