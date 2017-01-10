@@ -23,7 +23,7 @@ public class Views {
 	public String show(@PathVariable("viewId") String viewId, Model model) {
 		View view = pipelineManager.getView(viewId);
 
-		if (viewId == null) {
+		if (view == null) {
 			throw new ResourceNotFoundException();
 		}
 

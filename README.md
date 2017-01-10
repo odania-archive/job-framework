@@ -21,6 +21,30 @@ If you have installed it just execute the following steps:
  Example content can be found here: 
  https://github.com/Odania-IT/job-framework/tree/master/docker
 
+## Production
+
+A complete build is available directly via https://hub.docker.com/r/odaniait/job-framework
+
+If you want to run it simply use docker:
+
+```
+docker run --name jobframework -p 8000:8000 -v /media/job-framework-data:/srv odaniait/job-framework
+```
+
+In this example the folder "/media/job-framework-data" contains
+the data from 
+
+### Docker support in container
+
+If you need docker inside the container you can bind the
+docker socket to the container
+
+```
+-v /var/run/docker.sock:/var/run/docker.sock
+```
+
+Now you can use the docker of the host inside the container.
+
 ## Pipelines
 
 Everything that can be defined is a pipeline. A pipeline consists of multiple steps.
@@ -92,6 +116,8 @@ The pipeline configuration is defined in the config.yml folder.
 - Execution limit for jobs or steps
 - Reload config with or without waiting for finished jobs
 - Save queue
+- Abort
+- Retry
 
 # FAQ
 
