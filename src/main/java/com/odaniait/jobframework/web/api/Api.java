@@ -17,7 +17,6 @@ import java.util.Map;
 @Controller
 @RequestMapping(path = "/api", produces = "application/json")
 public class Api {
-	private Logger logger = LoggerFactory.getLogger(Api.class);
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	@Autowired

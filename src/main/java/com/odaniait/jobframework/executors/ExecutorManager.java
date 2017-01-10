@@ -1,5 +1,7 @@
 package com.odaniait.jobframework.executors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.odaniait.jobframework.config.JobFrameworkConfig;
 import com.odaniait.jobframework.exceptions.BuildException;
 import com.odaniait.jobframework.models.*;
@@ -20,16 +22,14 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class ExecutorManager {
-	private Logger logger = LoggerFactory.getLogger(ExecutorManager.class);
+	private static Logger logger = LoggerFactory.getLogger(ExecutorManager.class);
+	private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
 	@Getter
 	private Map<Integer, List<Thread>> buildThreads = new HashMap<>();
 	private final Lock lock = new ReentrantLock();
 
-	@Autowired
 	private JobFrameworkConfig jobFrameworkConfig;
-
-	@Autowired
 	private PipelineManager pipelineManager;
 
 	@Autowired
@@ -38,6 +38,35 @@ public class ExecutorManager {
 	@Getter
 	private BuildState buildState = new BuildState();
 
+	@Autowired
+	public ExecutorManager(JobFrameworkConfig jobFrameworkConfig, PipelineManager pipelineManager) throws IOException, BuildException {
+		this.jobFrameworkConfig = jobFrameworkConfig;
+		this.pipelineManager = pipelineManager;
+
+		File buildStateFile = jobFrameworkConfig.getBuildStateFile();
+		if (buildStateFile.isFile()) {
+			buildState = mapper.readValue(buildStateFile, BuildState.class);
+
+			for (String pipelineId: buildState.getCurrent().keySet()) {
+				Pipeline pipeline = pipelineManager.getPipeline(pipelineId);
+
+				for (Integer buildNr : buildState.getCurrent().get(pipelineId)) {
+					Build build = pipeline.getState().getBuilds().get(buildNr);
+					startSteps(pipeline, build);
+				}
+			}
+		}
+	}
+
+	public void saveState() {
+		try {
+			File buildStateFile = jobFrameworkConfig.getBuildStateFile();
+			mapper.writeValue(buildStateFile, buildState);
+		} catch (IOException e) {
+			logger.error("Error saving state", e);
+		}
+	}
+
 	public void enqueue(Pipeline pipeline) {
 		enqueue(pipeline, new HashMap<>());
 	}
@@ -45,6 +74,7 @@ public class ExecutorManager {
 	public void enqueue(Pipeline pipeline, Map<String, String> parameter) {
 		logger.info("Enqueue " + pipeline.getId());
 		buildState.getQueued().add(new QueueEntry(pipeline.getId(), parameter));
+		saveState();
 	}
 
 	@Scheduled(fixedRate = 4000L)
@@ -76,6 +106,8 @@ public class ExecutorManager {
 					}
 				}
 			}
+
+			saveState();
 		} finally {
 			lock.unlock();
 		}
@@ -109,6 +141,8 @@ public class ExecutorManager {
 				pipeline.getState().setLastState(CurrentState.FAILED);
 				notificationManager.notifyFailure(pipeline, build);
 			}
+
+			saveState();
 		} finally {
 			lock.unlock();
 		}

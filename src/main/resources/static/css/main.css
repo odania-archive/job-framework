@@ -1,3 +1,7 @@
+body {
+	margin-left: 4px;
+}
+
 .pipeline-item {
 	float: left;
 	margin-right: 10px;

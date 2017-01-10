@@ -16,7 +16,7 @@ import java.util.Map;
 
 @Controller
 public class Pipelines {
-	private Logger logger = LoggerFactory.getLogger(Pipelines.class);
+	private static Logger logger = LoggerFactory.getLogger(Pipelines.class);
 
 	@Autowired
 	private ExecutorManager executorManager;

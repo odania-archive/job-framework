@@ -19,9 +19,9 @@ import java.util.Map;
 @EqualsAndHashCode
 public class Build {
 	@JsonIgnore
-	Logger logger = LoggerFactory.getLogger(Build.class);
+	private static Logger logger = LoggerFactory.getLogger(Build.class);
 	@JsonIgnore
-	private ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+	private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
 	private int buildNr;
 	private Date startedAt = new Date();

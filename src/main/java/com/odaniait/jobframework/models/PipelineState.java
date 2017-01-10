@@ -18,8 +18,8 @@ import java.util.*;
 @Data
 @EqualsAndHashCode
 public class PipelineState implements Serializable {
-	@JsonIgnore private Logger logger = LoggerFactory.getLogger(PipelineState.class);
-	@JsonIgnore private ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+	@JsonIgnore private static Logger logger = LoggerFactory.getLogger(PipelineState.class);
+	@JsonIgnore private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
 	private int nextBuildNumber = 1;
 

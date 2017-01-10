@@ -15,7 +15,7 @@ import java.io.IOException;
 @Component
 public class JobFrameworkConfig {
 	private static Logger logger = LoggerFactory.getLogger(PipelineManager.class);
-	private ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+	private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
 	@Value("${jobframework.baseDirectory}")
 	@Getter
@@ -44,5 +44,9 @@ public class JobFrameworkConfig {
 		}
 
 		return settings;
+	}
+
+	public File getBuildStateFile() {
+		return new File(baseDirectory + "/buildState.yml");
 	}
 }

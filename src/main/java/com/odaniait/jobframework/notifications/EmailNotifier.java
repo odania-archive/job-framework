@@ -16,7 +16,7 @@ import java.util.Map;
 
 @Component
 public class EmailNotifier implements Notifier {
-	private Logger logger = LoggerFactory.getLogger(EmailNotifier.class);
+	private static Logger logger = LoggerFactory.getLogger(EmailNotifier.class);
 
 	@Value("${jobframework.from_mail}")
 	private String fromMail;

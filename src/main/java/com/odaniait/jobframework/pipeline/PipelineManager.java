@@ -20,7 +20,7 @@ import java.util.Map;
 @Component
 public class PipelineManager {
 	private static Logger logger = LoggerFactory.getLogger(PipelineManager.class);
-	private ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+	private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
 	@Getter
 	private Map<String, Pipeline> pipelines = new HashMap<>();

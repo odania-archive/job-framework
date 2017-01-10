@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Service
 public class NotificationManager {
-	private Logger logger = LoggerFactory.getLogger(NotificationManager.class);
+	private static Logger logger = LoggerFactory.getLogger(NotificationManager.class);
 
 	@Getter
 	private Map<String, Notifier> notifier = new HashMap<>();
