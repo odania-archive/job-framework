@@ -4,7 +4,7 @@ import com.odaniait.jobframework.config.JobFrameworkConfig;
 import com.odaniait.jobframework.exceptions.BuildException;
 import com.odaniait.jobframework.models.*;
 import com.odaniait.jobframework.notifications.NotificationManager;
-import lombok.AllArgsConstructor;
+import com.odaniait.jobframework.pipeline.PipelineManager;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,19 +24,19 @@ public class ExecutorManager {
 
 	@Getter
 	private Map<Integer, List<Thread>> buildThreads = new HashMap<>();
-
-	@Getter
-	private Map<Pipeline, Set<Build>> current = new HashMap<>();
-
-	@Getter
-	private List<QueueEntry> queued = new ArrayList<>();
 	private final Lock lock = new ReentrantLock();
 
 	@Autowired
 	private JobFrameworkConfig jobFrameworkConfig;
 
 	@Autowired
+	private PipelineManager pipelineManager;
+
+	@Autowired
 	private NotificationManager notificationManager;
+
+	@Getter
+	private BuildState buildState = new BuildState();
 
 	public void enqueue(Pipeline pipeline) {
 		enqueue(pipeline, new HashMap<>());
@@ -44,15 +44,7 @@ public class ExecutorManager {
 
 	public void enqueue(Pipeline pipeline, Map<String, String> parameter) {
 		logger.info("Enqueue " + pipeline.getId());
-		queued.add(new QueueEntry(pipeline, parameter));
-	}
-
-	public int queueSize() {
-		return queued.size();
-	}
-
-	public int activePipelines() {
-		return current.size();
+		buildState.getQueued().add(new QueueEntry(pipeline.getId(), parameter));
 	}
 
 	@Scheduled(fixedRate = 4000L)
@@ -61,20 +53,20 @@ public class ExecutorManager {
 
 		Set<Build> newBuilds = new HashSet<>();
 		try {
-			if (!queued.isEmpty()) {
+			if (!buildState.getQueued().isEmpty()) {
 				logger.debug("Checking Queue");
 
-				Iterator<QueueEntry> queueIterator = queued.iterator();
+				Iterator<QueueEntry> queueIterator = buildState.getQueued().iterator();
 				while (queueIterator.hasNext()) {
 					QueueEntry queueEntry = queueIterator.next();
-					Pipeline pipeline = queueEntry.getPipeline();
-					if (!pipeline.getMultipleExecutions() && current.containsKey(pipeline)) {
+					Pipeline pipeline = pipelineManager.getPipeline(queueEntry.getPipelineId());
+					if (!pipeline.getMultipleExecutions() && buildState.getCurrent().containsKey(pipeline)) {
 						logger.debug("Can not start " + pipeline.getId() + " already running!");
 					} else {
 						logger.debug("Starting Pipeline " + pipeline.getId());
 						Build build = pipeline.prepareBuild();
-						Set<Build> currentBuilds = current.computeIfAbsent(pipeline, k -> new HashSet<>());
-						currentBuilds.add(build);
+						Set<Integer> currentBuilds = buildState.getCurrent().computeIfAbsent(pipeline.getId(), k -> new HashSet<>());
+						currentBuilds.add(build.getBuildNr());
 						queueIterator.remove();
 						build.setWorkspaceDir(new File(jobFrameworkConfig.getWorkspacePath() + "/" + pipeline.getId() + "/" + String.format("%08d", build.getBuildNr())));
 						build.setParameter(queueEntry.getParameter());
@@ -170,14 +162,14 @@ public class ExecutorManager {
 			build.setCurrentState(CurrentState.SUCCESS);
 
 			buildThreads.remove(build.getBuildNr());
-			Set<Build> builds = current.get(pipeline);
-			builds.remove(build);
+			Set<Integer> builds = buildState.getCurrent().get(pipeline.getId());
+			builds.remove(build.getBuildNr());
 			if (builds.isEmpty()) {
-				current.remove(pipeline);
+				buildState.getCurrent().remove(pipeline.getId());
 			}
 
 			pipeline.getState().finish(build);
-			if (!current.containsKey(pipeline)) {
+			if (!buildState.getCurrent().containsKey(pipeline.getId())) {
 				pipeline.getState().setCurrentState(build.getCurrentState());
 				pipeline.getState().setLastDuration(build.getDuration());
 			}
@@ -203,10 +195,5 @@ public class ExecutorManager {
 		thread.start();
 	}
 
-	@Getter
-	@AllArgsConstructor
-	private class QueueEntry {
-		private Pipeline pipeline;
-		private Map<String, String> parameter;
-	}
+
 }

@@ -7,10 +7,10 @@
 		<tr>
 			<th>Queue</th>
 		</tr>
-		<tr th:each="queueEntry : ${executorManager.queued}">
-			<td th:text="${queueEntry.pipeline.id}"></td>
+		<tr th:each="queueEntry : ${buildState.queued}">
+			<td th:text="${queueEntry.pipelineId}"></td>
 		</tr>
-		<tr th:if="${#sets.isEmpty(executorManager.queued)}">
+		<tr th:if="${#sets.isEmpty(buildState.queued)}">
 			<td>Empty</td>
 		</tr>
 		</tbody>
@@ -23,14 +23,14 @@
 		<tr>
 			<th colspan="2">Running</th>
 		</tr>
-		<tr th:each="currentEntry : ${executorManager.current}">
-			<td th:text="${currentEntry.key.id}"></td>
+		<tr th:each="currentEntry : ${buildState.current}">
+			<td th:text="${currentEntry.key}"></td>
 			<td>
-				<a th:each="build : ${currentEntry.value}" th:href="@{'/pipelines/' + ${currentEntry.key.id} + '/builds/' + ${build.buildNr}}"
-					 th:text="${build.buildNr}"></a>
+				<a th:each="buildNr : ${currentEntry.value}" th:href="@{'/pipelines/' + ${currentEntry.key} + '/builds/' + ${buildNr}}"
+					 th:text="${buildNr}"></a>
 			</td>
 		</tr>
-		<tr th:if="${#maps.isEmpty(executorManager.current)}">
+		<tr th:if="${#maps.isEmpty(buildState.current)}">
 			<td colspan="2">None</td>
 		</tr>
 		</tbody>

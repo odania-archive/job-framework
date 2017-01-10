@@ -10,15 +10,19 @@
 	<table class="table table-bordered table-striped">
 		<tr>
 			<th>Queue Size</th>
-			<td th:text="${executorManager.queueSize()}"></td>
+			<td th:text="${buildState.queued.size()}"></td>
 		</tr>
 		<tr>
 			<th>Active Pipelines</th>
-			<td th:text="${executorManager.activePipelines()}"></td>
+			<td th:text="${buildState.current.size()}"></td>
 		</tr>
 		<tr>
 			<th>Pipelines</th>
 			<td th:text="${pipelines.size()}"></td>
+		</tr>
+		<tr>
+			<th>Views</th>
+			<td th:text="${views.size()}"></td>
 		</tr>
 	</table>
 

@@ -19,7 +19,7 @@ public class GeneralControllerAdvice {
 	@ModelAttribute
 	public void addViews(Model model) {
 		model.addAttribute("views", pipelineManager.getViews());
-		model.addAttribute("executorManager", executorManager);
+		model.addAttribute("buildState", executorManager.getBuildState());
 	}
 
 	@ExceptionHandler(ResourceNotFoundException.class)
