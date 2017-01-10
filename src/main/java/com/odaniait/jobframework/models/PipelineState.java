@@ -156,7 +156,7 @@ public class PipelineState implements Serializable {
 		Integer lastIdx = buildKeys.get(buildKeys.size() - 1);
 		Integer start = lastIdx - 10;
 
-		for (int i = start ; i < lastIdx + 1 ; i++) {
+		for (int i = lastIdx ; i >= start ; i--) {
 			Build build = builds.get(i);
 
 			if (build != null) {
