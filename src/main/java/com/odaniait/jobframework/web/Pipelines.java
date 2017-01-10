@@ -34,6 +34,11 @@ public class Pipelines {
 	@RequestMapping("/pipelines/{pipelineId}")
 	public String show(@PathVariable String pipelineId, Model model) {
 		Pipeline pipeline = pipelineManager.getPipeline(pipelineId);
+
+		if (pipeline == null) {
+			throw new ResourceNotFoundException();
+		}
+
 		model.addAttribute("pipeline", pipeline);
 		model.addAttribute("builds", pipeline.getState().getLastBuilds());
 
@@ -43,6 +48,10 @@ public class Pipelines {
 	@RequestMapping("/pipelines/{pipelineId}/run")
 	public String run(@PathVariable String pipelineId, Model model) {
 		Pipeline pipeline = pipelineManager.getPipeline(pipelineId);
+
+		if (pipeline == null) {
+			throw new ResourceNotFoundException();
+		}
 
 		if (pipeline.getParamsSteps().isEmpty()) {
 			executorManager.enqueue(pipeline);
@@ -57,6 +66,10 @@ public class Pipelines {
 	@RequestMapping("/pipelines/{pipelineId}/execute")
 	public String execute(@PathVariable String pipelineId, @RequestParam("data") Map<String, String> data, Model model) {
 		Pipeline pipeline = pipelineManager.getPipeline(pipelineId);
+
+		if (pipeline == null) {
+			throw new ResourceNotFoundException();
+		}
 
 		// Validate parameter
 		boolean isOk = true;

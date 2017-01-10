@@ -85,10 +85,13 @@ The configuration is done in YAML files. The views are configured in the setting
 Pipelines are defined in the pipelines folder. The folder is used as the name of the pipeline.
 The pipeline configuration is defined in the config.yml folder.
 
-# Todo
+# Todo / Ideas
 
 - Automatic reloading of pages (builds, etc.)
 - Tags for filtering
+- Execution limit for jobs or steps
+- Reload config with or without waiting for finished jobs
+- Save queue
 
 # FAQ
 

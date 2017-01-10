@@ -18,15 +18,18 @@ RUN apk update && apk --no-cache add mongodb-tools@edge && \
 COPY . /opt/job-framework
 COPY docker/data /srv
 COPY docker/startup.sh /startup.sh
-COPY docker/startup_docker.sh /startup_docker.sh
 WORKDIR /opt/job-framework
-RUN /opt/job-framework/gradlew assemble
 
 RUN adduser -h /srv -s /bin/bash -D -u 1000 jobs
 RUN chown -R jobs:jobs /srv
+RUN chown -R jobs:jobs /opt/job-framework
+
+USER jobs
+RUN /opt/job-framework/gradlew assemble
+USER root
 
 # Allow installation of ansible
 RUN echo "jobs ALL=(root) NOPASSWD:/usr/bin/pip install ansible" >> /etc/sudoers
 
 VOLUME ["/srv"]
-CMD ["/startup.sh", "/var/lib/docker"]
+CMD ["/startup.sh"]

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odaniait.jobframework.executors.ExecutorManager;
 import com.odaniait.jobframework.models.Pipeline;
 import com.odaniait.jobframework.pipeline.PipelineManager;
+import com.odaniait.jobframework.web.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,10 @@ public class Api {
 	public String showPipeline(@PathVariable String pipelineId) throws JsonProcessingException {
 		Pipeline pipeline = pipelineManager.getPipeline(pipelineId);
 
+		if (pipeline == null) {
+			throw new ResourceNotFoundException();
+		}
+
 		return mapper.writeValueAsString(pipeline);
 	}
 
@@ -37,7 +42,10 @@ public class Api {
 	@ResponseBody
 	public String startPipeline(@PathVariable String pipelineId, @RequestBody Map<String, String> data) throws JsonProcessingException {
 		Pipeline pipeline = pipelineManager.getPipeline(pipelineId);
-		logger.info(data.toString());
+
+		if (pipeline == null) {
+			throw new ResourceNotFoundException();
+		}
 
 		executorManager.enqueue(pipeline, data);
 
