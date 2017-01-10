@@ -56,6 +56,7 @@ public class Build {
 	public void updateStepOutput(Step step, String output) throws IOException, BuildException {
 		BuildJobResult jobResult = new BuildJobResult();
 		jobResult.setOutput(output);
+		jobResult.setResultStatus(ResultStatus.RUNNING);
 		results.put(step.getName(), jobResult);
 		stepStates.put(step.getName(), CurrentState.RUNNING);
 

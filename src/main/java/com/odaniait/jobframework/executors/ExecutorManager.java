@@ -24,7 +24,11 @@ public class ExecutorManager {
 
 	@Getter
 	private Map<Integer, List<Thread>> buildThreads = new HashMap<>();
+
+	@Getter
 	private Map<Pipeline, Set<Build>> current = new HashMap<>();
+
+	@Getter
 	private List<QueueEntry> queued = new ArrayList<>();
 	private final Lock lock = new ReentrantLock();
 
@@ -165,8 +169,12 @@ public class ExecutorManager {
 			pipeline.getState().setLastState(CurrentState.SUCCESS);
 			build.setCurrentState(CurrentState.SUCCESS);
 
-			current.remove(pipeline);
 			buildThreads.remove(build.getBuildNr());
+			Set<Build> builds = current.get(pipeline);
+			builds.remove(build);
+			if (builds.isEmpty()) {
+				current.remove(pipeline);
+			}
 
 			pipeline.getState().finish(build);
 			if (!current.containsKey(pipeline)) {

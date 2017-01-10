@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="queue">
+	<table class="table table-bordered table-striped">
+		<tbody>
+		<tr>
+			<th>Queue</th>
+		</tr>
+		<tr th:each="queueEntry : ${executorManager.queued}">
+			<td th:text="${queueEntry.pipeline.id}"></td>
+		</tr>
+		<tr th:if="${#sets.isEmpty(executorManager.queued)}">
+			<td>Empty</td>
+		</tr>
+		</tbody>
+	</table>
+
+	<br/>
+
+	<table class="table table-bordered table-striped">
+		<tbody>
+		<tr>
+			<th colspan="2">Running</th>
+		</tr>
+		<tr th:each="currentEntry : ${executorManager.current}">
+			<td th:text="${currentEntry.key.id}"></td>
+			<td>
+				<a th:each="build : ${currentEntry.value}" th:href="@{'/pipelines/' + ${currentEntry.key.id} + '/builds/' + ${build.buildNr}}"
+					 th:text="${build.buildNr}"></a>
+			</td>
+		</tr>
+		<tr th:if="${#maps.isEmpty(executorManager.current)}">
+			<td colspan="2">None</td>
+		</tr>
+		</tbody>
+	</table>
+</div>
+</body>
+</html>

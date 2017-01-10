@@ -1,5 +1,6 @@
 package com.odaniait.jobframework.web.helper;
 
+import com.odaniait.jobframework.executors.ExecutorManager;
 import com.odaniait.jobframework.pipeline.PipelineManager;
 import com.odaniait.jobframework.web.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +13,13 @@ public class GeneralControllerAdvice {
 	@Autowired
 	private PipelineManager pipelineManager;
 
+	@Autowired
+	private ExecutorManager executorManager;
+
 	@ModelAttribute
 	public void addViews(Model model) {
 		model.addAttribute("views", pipelineManager.getViews());
+		model.addAttribute("executorManager", executorManager);
 	}
 
 	@ExceptionHandler(ResourceNotFoundException.class)

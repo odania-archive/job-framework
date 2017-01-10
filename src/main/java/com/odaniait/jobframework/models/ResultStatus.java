@@ -4,7 +4,8 @@ public enum ResultStatus {
 	SUCCESS,
 	ABORTED,
 	FAILED,
-	NOT_STARTED;
+	NOT_STARTED,
+	RUNNING;
 
 
 	public static ResultStatus getForExitCode(int exitCode) {
