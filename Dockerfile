@@ -25,6 +25,7 @@ RUN chown -R jobs:jobs /srv
 RUN chown -R jobs:jobs /opt/job-framework
 
 USER jobs
+ENV GRADLE_OPTS -Dgradle.user.home=/opt/job-framework/.gradle
 RUN /opt/job-framework/gradlew assemble
 USER root
 
