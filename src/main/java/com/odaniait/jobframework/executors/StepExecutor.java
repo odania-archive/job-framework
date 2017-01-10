@@ -82,7 +82,7 @@ public class StepExecutor implements Runnable {
 				String line;
 
 				while ((line = br.readLine()) != null) {
-					output += line;
+					output += line + "\n";
 				}
 
 				logger.debug("Step " + step.getName() + " output:" + output);
