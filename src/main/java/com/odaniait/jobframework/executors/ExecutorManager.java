@@ -90,7 +90,14 @@ public class ExecutorManager {
 				while (queueIterator.hasNext()) {
 					QueueEntry queueEntry = queueIterator.next();
 					Pipeline pipeline = pipelineManager.getPipeline(queueEntry.getPipelineId());
-					if (!pipeline.getMultipleExecutions() && buildState.getCurrent().containsKey(pipeline)) {
+
+					if (pipeline == null) {
+						logger.error("Could not find pipeline " + queueEntry.getPipelineId());
+						queueIterator.remove();
+						continue;
+					}
+
+					if (!pipeline.getMultipleExecutions() && buildState.getCurrent().containsKey(pipeline.getId())) {
 						logger.debug("Can not start " + pipeline.getId() + " already running!");
 					} else {
 						logger.debug("Starting Pipeline " + pipeline.getId());
@@ -197,9 +204,11 @@ public class ExecutorManager {
 
 			buildThreads.remove(build.getBuildNr());
 			Set<Integer> builds = buildState.getCurrent().get(pipeline.getId());
-			builds.remove(build.getBuildNr());
-			if (builds.isEmpty()) {
-				buildState.getCurrent().remove(pipeline.getId());
+			if (builds != null) {
+				builds.remove(build.getBuildNr());
+				if (builds.isEmpty()) {
+					buildState.getCurrent().remove(pipeline.getId());
+				}
 			}
 
 			pipeline.getState().finish(build);

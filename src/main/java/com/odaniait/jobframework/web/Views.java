@@ -44,11 +44,13 @@ public class Views {
 			}
 		}
 
-		for (Map.Entry<String, Pipeline> pipelineEntry : pipelineManager.getPipelines().entrySet()) {
-			Set<String> pipelineTags = pipelineEntry.getValue().getTags();
+		if (!view.getTags().isEmpty()) {
+			for (Map.Entry<String, Pipeline> pipelineEntry : pipelineManager.getPipelines().entrySet()) {
+				Set<String> pipelineTags = pipelineEntry.getValue().getTags();
 
-			if (pipelineTags.containsAll(view.getTags())) {
-				pipelines.put(pipelineEntry.getKey(), pipelineEntry.getValue());
+				if (pipelineTags.containsAll(view.getTags())) {
+					pipelines.put(pipelineEntry.getKey(), pipelineEntry.getValue());
+				}
 			}
 		}
 

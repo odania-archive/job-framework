@@ -4,6 +4,8 @@ multipleExecutions: true
 notify:
   email:
     emails: mike@odania-it.com
+tags:
+  - t1
 paramsSteps:
   - name: This is Step 1
     params:

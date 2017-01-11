@@ -64,7 +64,7 @@ public class Build {
 	}
 
 	public void setStepResult(Step step, int exitCode, String output) throws IOException, BuildException {
-		BuildJobResult jobResult =results.get(step.getName());
+		BuildJobResult jobResult = results.computeIfAbsent(step.getName(), k -> new BuildJobResult());
 		jobResult.setExitCode(exitCode);
 		jobResult.setOutput(output);
 

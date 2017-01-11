@@ -12,3 +12,6 @@ views:
       - pipeline-2
   view 3:
     pattern: .*1
+  view 4:
+    tags:
+      - t1

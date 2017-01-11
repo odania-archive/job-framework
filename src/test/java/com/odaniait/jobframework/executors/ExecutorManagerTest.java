@@ -37,7 +37,7 @@ public class ExecutorManagerTest {
 	@Autowired
 	private ExecutorManager executorManager;
 
-	@Mock
+	@Autowired
 	private PipelineManager pipelineManager;
 
 	@Mock

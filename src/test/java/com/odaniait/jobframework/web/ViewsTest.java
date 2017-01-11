@@ -62,4 +62,14 @@ public class ViewsTest {
 			not(containsString("/pipelines/my pipeline"))
 		)));
 	}
+
+	@Test
+	public void requestShowViewWithTags() throws Exception {
+		ResultActions resultActions = mvc.perform(get("/views/view 4")).andExpect(status().isOk());
+		resultActions.andExpect(content().string(allOf(
+			containsString("/pipelines/pipeline-1"),
+			not(containsString("/pipelines/pipeline-2")),
+			containsString("/pipelines/my pipeline")
+		)));
+	}
 }
