@@ -31,10 +31,8 @@ public class Build {
 	private CurrentState currentState = CurrentState.RUNNING;
 
 	private Map<String, CurrentState> stepStates = new HashMap<>();
-
 	private Map<String, BuildJobResult> results = new HashMap<>();
-
-	private Map<String, String> parameter;
+	private Map<String, String> parameter = new HashMap<>();
 
 	@JsonIgnore
 	private File buildDir;
@@ -51,6 +49,15 @@ public class Build {
 
 		File infoFile = new File(buildDir + "/info.yml");
 		mapper.writeValue(infoFile, this);
+	}
+
+	public void continueStep(Step step) {
+		CurrentState currentState = stepStates.get(step.getName());
+		if (CurrentState.WAITING.equals(currentState)) {
+			stepStates.put(step.getName(), CurrentState.TRIGGERED);
+		} else {
+			logger.error("Step " + step.getName() + " has wrong state! It can not be triggered! CurrentState: " + currentState);
+		}
 	}
 
 	public void updateStepOutput(Step step, String output) throws IOException, BuildException {
@@ -88,6 +95,14 @@ public class Build {
 			if (!buildJobResult.getResultStatus().equals(ResultStatus.SUCCESS)) {
 				resultStatus = ResultStatus.getWorseStatus(resultStatus, buildJobResult.getResultStatus());
 			}
+		}
+
+		if (ResultStatus.SUCCESS.equals(resultStatus)) {
+			currentState = CurrentState.SUCCESS;
+		} else if (ResultStatus.FAILED.equals(resultStatus)) {
+			currentState = CurrentState.FAILED;
+		} else if (ResultStatus.ABORTED.equals(resultStatus)) {
+			currentState = CurrentState.ABORTED;
 		}
 
 		save();

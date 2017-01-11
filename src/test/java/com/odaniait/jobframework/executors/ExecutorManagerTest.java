@@ -3,6 +3,7 @@ package com.odaniait.jobframework.executors;
 import com.odaniait.jobframework.config.JobFrameworkConfig;
 import com.odaniait.jobframework.exceptions.BuildException;
 import com.odaniait.jobframework.models.*;
+import com.odaniait.jobframework.notifications.NotificationManager;
 import com.odaniait.jobframework.pipeline.PipelineManager;
 import factories.ParameterFactory;
 import factories.PipelineFactory;
@@ -12,105 +13,98 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
-@SpringBootTest
+@RunWith(MockitoJUnitRunner.class)
 public class ExecutorManagerTest {
-
-	@Autowired
-	private ExecutorManager executorManager;
-
-	@Autowired
+	@Mock
 	private PipelineManager pipelineManager;
 
 	@Mock
 	private JobFrameworkConfig jobFrameworkConfig;
 
+	@Mock
+	private NotificationManager notificationManager;
+
+	private SecureRandom random = new SecureRandom();
+
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
+
 		when(jobFrameworkConfig.getWorkspacePath()).thenReturn(new File("/tmp/job-framework-test/workspace"));
 		when(jobFrameworkConfig.getPipelinePath()).thenReturn("/tmp/job-framework-test/pipelines");
+		when(jobFrameworkConfig.getBuildStateFile()).thenAnswer(new Answer<File>() {
+			@Override
+			public File answer(InvocationOnMock invocation) throws Throwable {
+				String randomString = new BigInteger(130, random).toString(32);
+				return new File("/tmp/job-framework-test/pipelines/state_" + randomString + ".yml");
+			}
+		});
+		new File("/tmp/job-framework-test/pipelines").mkdirs();
 	}
 
 	@Test
-	public void executePipeline() throws IOException, BuildException, InterruptedException {
+	public void enqueuePipeline() throws IOException, BuildException {
 		Pipeline pipeline = PipelineFactory.generate();
-		pipelineManager.getPipelines().put(pipeline.getId(), pipeline);
 
-		PipelineState state = pipeline.getState();
-		state.setPipelineDirectory(new File("/tmp/job-framework-test/builds"));
-		Build lastBuild = state.getLastBuild();
+		ExecutorManager executorManager = new ExecutorManager(jobFrameworkConfig, pipelineManager, notificationManager);
+		executorManager.enqueue(pipeline);
 
+		List<QueueEntry> queued = executorManager.getBuildState().getQueued();
+		QueueEntry queueEntry = queued.get(0);
+
+		assertEquals(1, queued.size());
+		assertEquals(pipeline.getId(), queueEntry.getPipelineId());
+		assertTrue(queueEntry.getParameter().isEmpty());
+	}
+
+	@Test
+	public void enqueuePipelineWithParameter() throws IOException, BuildException {
+		Pipeline pipeline = PipelineFactory.generate();
+		Map<String, String> parameter = new HashMap<>();
+		parameter.put("param1", "val1");
+		parameter.put("param2", "val1,val2");
+
+		ExecutorManager executorManager = new ExecutorManager(jobFrameworkConfig, pipelineManager, notificationManager);
+		executorManager.enqueue(pipeline, parameter);
+
+		List<QueueEntry> queued = executorManager.getBuildState().getQueued();
+		QueueEntry queueEntry = queued.get(0);
+
+		assertEquals(1, queued.size());
+		assertEquals(pipeline.getId(), queueEntry.getPipelineId());
+		assertEquals(parameter, queueEntry.getParameter());
+	}
+
+	@Test
+	public void checkQueue() throws IOException, BuildException {
+		Pipeline pipeline = PipelineFactory.generate();
+		when(pipelineManager.getPipeline(pipeline.getId())).thenReturn(pipeline);
+
+		ExecutorManager executorManager = new ExecutorManager(jobFrameworkConfig, pipelineManager, notificationManager);
 		executorManager.enqueue(pipeline);
 		Set<Build> builds = executorManager.checkQueue();
 		Build build = builds.iterator().next();
 
-		assertNotSame(lastBuild, build);
-		build.setWorkspaceDir(new File("/tmp/job-framework-test/builds/executor-manager-test"));
-
-		finishExecution(build);
-		assertEquals(pipeline.getSteps().size(), build.getResults().size());
-
-		for (Step step : pipeline.getSteps()) {
-			BuildJobResult buildJobResult = build.getResults().get(step.getName());
-
-			assertNotNull(buildJobResult);
-
-			// Assert output of each job
-			for (Job job : step.getJobs()) {
-				assertThat(buildJobResult.getOutput(), CoreMatchers.containsString(job.getName()));
-			}
-		}
-	}
-
-	@Test
-	public void executePipelineWithParams() throws IOException, BuildException {
-		Pipeline pipeline = PipelineFactory.generate();
-		pipelineManager.getPipelines().put(pipeline.getId(), pipeline);
-
-		PipelineState state = pipeline.getState();
-		state.setPipelineDirectory(new File("/tmp/job-framework-test/builds"));
-
-		executorManager.enqueue(pipeline, ParameterFactory.generate());
-		Set<Build> builds = executorManager.checkQueue();
-		Build build = builds.iterator().next();
-		build.setWorkspaceDir(new File("/tmp/job-framework-test/builds/executor-manager-test"));
-		finishExecution(build);
-
-		assertEquals(pipeline.getSteps().size(), build.getResults().size());
-	}
-
-	private void finishExecution(Build build) {
-		while (!executorManager.getBuildThreads().isEmpty()) {
-			List<Thread> buildThreads = executorManager.getBuildThreads().get(build.getBuildNr());
-
-			if (buildThreads == null) {
-				break;
-			}
-
-			Iterator<Thread> threadIterator = buildThreads.iterator();
-			if (threadIterator.hasNext()) {
-				Thread thread = threadIterator.next();
-				thread.run();
-			}
-		}
+		assertEquals(1, builds.size());
+		assertTrue(pipeline.getState().getBuilds().containsValue(build));
+		Map<String, Set<Integer>> current = executorManager.getBuildState().getCurrent();
+		assertTrue(current.get(pipeline.getId()).contains(build.getBuildNr()));
 	}
 }

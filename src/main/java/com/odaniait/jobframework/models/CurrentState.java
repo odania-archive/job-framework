@@ -6,5 +6,7 @@ public enum CurrentState {
 	NOT_STARTED,
 	SUCCESS,
 	WAITING,
+	TRIGGERED,
+	WAITING_ON_TRIGGER,
 	FAILED
 }

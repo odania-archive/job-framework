@@ -44,13 +44,15 @@ steps:
         script: "echo 'pipeline-1 [Step 1] Job 2'"
   - name: Step 2a
     execute: PARALLEL
-    onSuccess: Step 3a
+    onSuccess:
+      - Step 3a
     jobs:
       - name: "[Step 2] Parallel Step 1"
         script: "echo 'pipeline-1 [Step 2-Parallel Step 1] Job 1'"
   - name: Step 2b
     execute: PARALLEL
-    onSuccess: Step 3b
+    onSuccess:
+     - Step 3b
     jobs:
       - name: "[Step 2] Parallel Step 2"
         script: "echo 'pipeline-1 [Step 2-Parallel Step 2] Job 1'"

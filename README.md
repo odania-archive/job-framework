@@ -118,6 +118,8 @@ The pipeline configuration is defined in the config.yml folder.
 - Save queue
 - Abort
 - Retry
+- Script Notifier
+- Error View (Special Logging)
 
 # FAQ
 

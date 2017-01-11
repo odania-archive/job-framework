@@ -2,7 +2,6 @@ package com.odaniait.jobframework.executors;
 
 import com.odaniait.jobframework.exceptions.BuildException;
 import com.odaniait.jobframework.models.*;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,16 +19,13 @@ public class StepExecutor implements Runnable {
 	private final Pipeline pipeline;
 	private final Step step;
 	private final Build build;
-	private ExecutorManager executorManager;
+	private final BuildExecutor buildExecutor;
 
-	@Setter
-	private Thread thread;
-
-	public StepExecutor(Pipeline pipeline, Step step, Build build, ExecutorManager executorManager) {
+	public StepExecutor(Pipeline pipeline, Step step, Build build, BuildExecutor buildExecutor) {
 		this.pipeline = pipeline;
 		this.step = step;
 		this.build = build;
-		this.executorManager = executorManager;
+		this.buildExecutor = buildExecutor;
 	}
 
 	@Override
@@ -96,6 +92,10 @@ public class StepExecutor implements Runnable {
 
 				process.waitFor(); // It seems it takes a second until the process is really finished
 				exitValue = process.exitValue();
+
+				if (exitValue != 0) {
+					break;
+				}
 			}
 		} catch (IOException | InterruptedException | BuildException e) {
 			logger.error("Error executing Pipeline: " + pipeline.getId() + " Step: " + step.getName(), e);
@@ -107,10 +107,6 @@ public class StepExecutor implements Runnable {
 			logger.error("Error executing Pipeline: " + pipeline.getId() + " Step: " + step.getName(), e);
 		}
 
-		try {
-			executorManager.finishStep(pipeline, step, build, thread);
-		} catch (IOException | BuildException e) {
-			logger.error("Error finishing Step for Build: " + build.getBuildNr() + " Pipeline: " + pipeline.getId() + " Step: " + step.getName(), e);
-		}
+		buildExecutor.executeTrigger(step);
 	}
 }

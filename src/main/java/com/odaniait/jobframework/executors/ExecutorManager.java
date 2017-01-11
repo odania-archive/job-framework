@@ -31,29 +31,33 @@ public class ExecutorManager {
 
 	private JobFrameworkConfig jobFrameworkConfig;
 	private PipelineManager pipelineManager;
-
-	@Autowired
 	private NotificationManager notificationManager;
 
 	@Getter
 	private BuildState buildState = new BuildState();
 
 	@Autowired
-	public ExecutorManager(JobFrameworkConfig jobFrameworkConfig, PipelineManager pipelineManager) throws IOException, BuildException {
+	public ExecutorManager(JobFrameworkConfig jobFrameworkConfig, PipelineManager pipelineManager,
+												 NotificationManager notificationManager) {
 		this.jobFrameworkConfig = jobFrameworkConfig;
 		this.pipelineManager = pipelineManager;
+		this.notificationManager = notificationManager;
 
 		File buildStateFile = jobFrameworkConfig.getBuildStateFile();
 		if (buildStateFile.isFile()) {
-			buildState = mapper.readValue(buildStateFile, BuildState.class);
+			try {
+				buildState = mapper.readValue(buildStateFile, BuildState.class);
 
-			for (String pipelineId: buildState.getCurrent().keySet()) {
-				Pipeline pipeline = pipelineManager.getPipeline(pipelineId);
+				for (String pipelineId : buildState.getCurrent().keySet()) {
+					Pipeline pipeline = pipelineManager.getPipeline(pipelineId);
 
-				for (Integer buildNr : buildState.getCurrent().get(pipelineId)) {
-					Build build = pipeline.getState().getBuilds().get(buildNr);
-					startSteps(pipeline, build);
+					for (Integer buildNr : buildState.getCurrent().get(pipelineId)) {
+						Build build = pipeline.getState().getBuilds().get(buildNr);
+						startBuild(pipeline, build);
+					}
 				}
+			} catch (IOException e) {
+				logger.error("Error loading build state", e);
 			}
 		}
 	}
@@ -72,9 +76,15 @@ public class ExecutorManager {
 	}
 
 	public void enqueue(Pipeline pipeline, Map<String, String> parameter) {
-		logger.info("Enqueue " + pipeline.getId());
-		buildState.getQueued().add(new QueueEntry(pipeline.getId(), parameter));
-		saveState();
+		lock.lock();
+
+		try {
+			logger.info("Enqueue " + pipeline.getId());
+			buildState.getQueued().add(new QueueEntry(pipeline.getId(), parameter));
+			saveState();
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	@Scheduled(fixedRate = 4000L)
@@ -107,7 +117,7 @@ public class ExecutorManager {
 						queueIterator.remove();
 						build.setWorkspaceDir(new File(jobFrameworkConfig.getWorkspacePath() + "/" + pipeline.getId() + "/" + String.format("%08d", build.getBuildNr())));
 						build.setParameter(queueEntry.getParameter());
-						startSteps(pipeline, build);
+						startBuild(pipeline, build);
 
 						newBuilds.add(build);
 					}
@@ -122,78 +132,34 @@ public class ExecutorManager {
 		return newBuilds;
 	}
 
-	// Cleanup if something is broken
-	@Scheduled(fixedRate = 60000L)
-	public void checkRunningTasks() {
-		lock.lock();
+	public boolean startBuild(Pipeline pipeline, Build build) {
+		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, this);
+		Thread thread = new Thread(buildExecutor);
+		Map<Build, List<Thread>> buildListMap = buildThreads.computeIfAbsent(pipeline, k -> new HashMap<>());
+		List<Thread> threads = buildListMap.computeIfAbsent(build, k -> new ArrayList<>());
+		threads.add(thread);
+		thread.start();
 
-		try {
-			Map<String, Set<Integer>> buildStateCurrent = buildState.getCurrent();
-			Iterator<Pipeline> pipelineIterator = buildThreads.keySet().iterator();
-			while (pipelineIterator.hasNext()) {
-				Pipeline pipeline = pipelineIterator.next();
-				Map<Build, List<Thread>> buildListMap = buildThreads.get(pipeline);
-
-				if (buildListMap != null) {
-					Iterator<Build> buildIterator = buildListMap.keySet().iterator();
-					while (buildIterator.hasNext()) {
-						Build build = buildIterator.next();
-						boolean isAlive = false;
-
-						for (Thread thread : buildListMap.get(build)) {
-							if (Thread.State.NEW.equals(thread.getState()) || thread.isAlive()) {
-								isAlive = true;
-							}
-						}
-
-						if (!isAlive) {
-							buildIterator.remove();
-							Set<Integer> currentBuildNrs = buildStateCurrent.get(pipeline.getId());
-							currentBuildNrs.remove(build.getBuildNr());
-
-							if (currentBuildNrs.isEmpty()) {
-								buildStateCurrent.remove(pipeline.getId());
-							}
-
-						}
-					}
-				}
-			}
-
-			saveState();
-		} finally {
-			lock.unlock();
-		}
+		return true;
 	}
 
-	public void finishStep(Pipeline pipeline, Step step, Build build, Thread thread) throws IOException, BuildException {
+	public void finishBuild(Pipeline pipeline, Build build) {
 		lock.lock();
 
 		try {
-			logger.info("Checking Step for Pipeline " + pipeline.getId() + " Build " + build.getBuildNr());
-			Map<Build, List<Thread>> buildListMap = buildThreads.get(pipeline);
-			if (buildListMap != null) {
-				List<Thread> threadList = buildListMap.get(build);
-				if (threadList != null) {
-					threadList.remove(thread);
+			if (ResultStatus.SUCCESS.equals(build.getResultStatus())) {
+				CurrentState lastState = pipeline.getState().getLastState();
+				if (!CurrentState.SUCCESS.equals(lastState)) {
+					notificationManager.notifyBackToNormal(pipeline, build);
 				}
+			} else {
+				notificationManager.notifyFailure(pipeline, build);
 			}
 
-			if (build.getStepStates().get(step.getName()).equals(CurrentState.SUCCESS)) {
-				// Trigger success
-				if (step.getOnSuccess() != null) {
-					startStep(pipeline, pipeline.getStep(step.getOnSuccess()), build);
-				}
-				startSteps(pipeline, build);
-			} else {
-				// Trigger error
-				if (step.getOnError() != null) {
-					startStep(pipeline, pipeline.getStep(step.getOnError()), build);
-				}
-
-				pipeline.getState().setCurrentState(CurrentState.FAILED);
-				pipeline.getState().setLastState(CurrentState.FAILED);
-				notificationManager.notifyFailure(pipeline, build);
+			try {
+				cleanupBuilds(pipeline);
+			} catch (IOException e) {
+				logger.error("Error cleaning builds for pipeline " + pipeline.getId() + " Build " + build.getBuildNr(), e);
 			}
 
 			saveState();
@@ -208,92 +174,5 @@ public class ExecutorManager {
 			pipeline.getState().cleanupBuilds(keepBuilds, new File(jobFrameworkConfig.getWorkspacePath() + "/" + pipeline.getId()));
 		}
 	}
-
-	private void startSteps(Pipeline pipeline, Build build) throws IOException, BuildException {
-		Set<Step> triggerManualSteps = new HashSet<>();
-		Set<Step> successFullSteps = new HashSet<>();
-		boolean finishedAll = true;
-
-		for (Step step : pipeline.getSteps()) {
-			CurrentState stepState = build.getStepStates().get(step.getName());
-
-			if (stepState == null) {
-				if (finishedAll) {
-					if (TriggerType.MANUAL.equals(step.getTriggerType())) {
-						build.getStepStates().put(step.getName(), CurrentState.WAITING);
-						triggerManualSteps.add(step);
-					} else if (!step.getExecute().equals(StepExecute.ON_TRIGGER)) {
-						startStep(pipeline, step, build);
-					}
-
-					if (!step.getExecute().equals(StepExecute.PARALLEL)) {
-						break;
-					}
-				}
-			} else if (stepState.equals(CurrentState.SUCCESS)) {
-				successFullSteps.add(step);
-			} else if (stepState.equals(CurrentState.WAITING)) {
-				if (!step.getExecute().equals(StepExecute.PARALLEL)) {
-					break;
-				}
-
-				finishedAll = false;
-			} else {
-				break;
-			}
-		}
-
-		if (successFullSteps.size() == pipeline.getSteps().size()) {
-			logger.info("Finished Pipeline " + pipeline.getId());
-			CurrentState lastState = pipeline.getState().getLastState();
-			pipeline.getState().setLastState(CurrentState.SUCCESS);
-			build.setCurrentState(CurrentState.SUCCESS);
-
-			Map<Build, List<Thread>> buildListMap = buildThreads.get(pipeline);
-			if (buildListMap != null) {
-				buildListMap.remove(build);
-
-				if (buildListMap.isEmpty()) {
-					buildThreads.remove(pipeline);
-				}
-			}
-
-
-			Set<Integer> builds = buildState.getCurrent().get(pipeline.getId());
-			if (builds != null) {
-				builds.remove(build.getBuildNr());
-				if (builds.isEmpty()) {
-					buildState.getCurrent().remove(pipeline.getId());
-				}
-			}
-
-			pipeline.getState().finish(build);
-			if (!buildState.getCurrent().containsKey(pipeline.getId())) {
-				pipeline.getState().setCurrentState(build.getCurrentState());
-				pipeline.getState().setLastDuration(build.getDuration());
-			}
-			pipeline.getState().save();
-
-			if (!CurrentState.SUCCESS.equals(lastState)) {
-				notificationManager.notifyBackToNormal(pipeline, build);
-			}
-
-			cleanupBuilds(pipeline);
-		} else if (!triggerManualSteps.isEmpty()) {
-			build.setCurrentState(CurrentState.WAITING);
-		}
-	}
-
-	private void startStep(Pipeline pipeline, Step step, Build build) {
-		StepExecutor stepExecutor = new StepExecutor(pipeline, step, build, this);
-		Thread thread = new Thread(stepExecutor);
-		stepExecutor.setThread(thread);
-
-		Map<Build, List<Thread>> buildListMap = this.buildThreads.computeIfAbsent(pipeline, k -> new HashMap<>());
-		List<Thread> threadList = buildListMap.computeIfAbsent(build, k -> new ArrayList<>());
-		threadList.add(thread);
-		thread.start();
-	}
-
 
 }

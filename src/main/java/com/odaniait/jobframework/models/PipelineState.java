@@ -52,7 +52,7 @@ public class PipelineState implements Serializable {
 		lastDuration = build.getDuration();
 	}
 
-	public void initialize(File pipelineDirectory, String pipelineWorkspacePath) throws IOException {
+	public void initialize(File pipelineDirectory, String pipelineWorkspacePath) {
 		this.pipelineDirectory = pipelineDirectory;
 
 		// Read Builds
@@ -63,7 +63,13 @@ public class PipelineState implements Serializable {
 			for (File file : fList) {
 				File infoFile = new File(file, "/info.yml");
 				if (infoFile.isFile()) {
-					Build build = mapper.readValue(infoFile, Build.class);
+					Build build;
+					try {
+						build = mapper.readValue(infoFile, Build.class);
+					} catch (IOException e) {
+						logger.error("Error reading build state " + infoFile, e);
+						build = new Build();
+					}
 					build.setBuildDir(file);
 					build.setWorkspaceDir(new File(pipelineWorkspacePath + "/" + String.format("%08d", build.getBuildNr())));
 					this.builds.put(build.getBuildNr(), build);
