@@ -45,7 +45,7 @@ public class NotificationManagerTest {
 
 		ArgumentCaptor<Build> buildCaptor = ArgumentCaptor.forClass(Build.class);
 		ArgumentCaptor<String> notifyTextCaptor = ArgumentCaptor.forClass(String.class);
-		verify(emailNotifier).exec(buildCaptor.capture(), any(HashMap.class), notifyTextCaptor.capture());
+		verify(emailNotifier).exec(buildCaptor.capture(), any(), notifyTextCaptor.capture());
 
 		assertEquals(build, buildCaptor.getValue());
 		assertTrue(notifyTextCaptor.getValue().startsWith("[FAILURE]"));
@@ -68,7 +68,7 @@ public class NotificationManagerTest {
 
 		ArgumentCaptor<Build> buildCaptor = ArgumentCaptor.forClass(Build.class);
 		ArgumentCaptor<String> notifyTextCaptor = ArgumentCaptor.forClass(String.class);
-		verify(emailNotifier).exec(buildCaptor.capture(), any(HashMap.class), notifyTextCaptor.capture());
+		verify(emailNotifier).exec(buildCaptor.capture(), any(), notifyTextCaptor.capture());
 
 		assertEquals(build, buildCaptor.getValue());
 		assertTrue(notifyTextCaptor.getValue().startsWith("[BACK-TO-NORMAL]"));
