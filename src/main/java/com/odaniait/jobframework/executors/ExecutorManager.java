@@ -26,7 +26,7 @@ public class ExecutorManager {
 	private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
 	@Getter
-	private Map<Integer, List<Thread>> buildThreads = new HashMap<>();
+	private Map<Pipeline, Map<Build, List<Thread>>> buildThreads = new HashMap<>();
 	private final Lock lock = new ReentrantLock();
 
 	private JobFrameworkConfig jobFrameworkConfig;
@@ -122,14 +122,59 @@ public class ExecutorManager {
 		return newBuilds;
 	}
 
+	// Cleanup if something is broken
+	@Scheduled(fixedRate = 60000L)
+	public void checkRunningTasks() {
+		lock.lock();
+
+		try {
+			Map<String, Set<Integer>> buildStateCurrent = buildState.getCurrent();
+			Iterator<Pipeline> pipelineIterator = buildThreads.keySet().iterator();
+			while (pipelineIterator.hasNext()) {
+				Pipeline pipeline = pipelineIterator.next();
+				Map<Build, List<Thread>> buildListMap = buildThreads.get(pipeline);
+
+				Iterator<Build> buildIterator = buildListMap.keySet().iterator();
+				while (buildIterator.hasNext()) {
+					Build build = buildIterator.next();
+					boolean isAlive = false;
+
+					for (Thread thread : buildListMap.get(build)) {
+						if (Thread.State.NEW.equals(thread.getState()) || thread.isAlive()) {
+							isAlive = true;
+						}
+					}
+
+					if (!isAlive) {
+						buildIterator.remove();
+						Set<Integer> currentBuildNrs = buildStateCurrent.get(pipeline.getId());
+						currentBuildNrs.remove(build.getBuildNr());
+
+						if (currentBuildNrs.isEmpty()) {
+							buildStateCurrent.remove(pipeline.getId());
+						}
+
+					}
+				}
+			}
+
+			saveState();
+		} finally {
+			lock.unlock();
+		}
+	}
+
 	public void finishStep(Pipeline pipeline, Step step, Build build, Thread thread) throws IOException, BuildException {
 		lock.lock();
 
 		try {
 			logger.info("Checking Step for Pipeline " + pipeline.getId() + " Build " + build.getBuildNr());
-			List<Thread> threadList = buildThreads.get(build.getBuildNr());
-			if (threadList != null) {
-				threadList.remove(thread);
+			Map<Build, List<Thread>> buildListMap = buildThreads.get(pipeline);
+			if (buildListMap != null) {
+				List<Thread> threadList = buildListMap.get(build);
+				if (threadList != null) {
+					threadList.remove(thread);
+				}
 			}
 
 			if (build.getStepStates().get(step.getName()).equals(CurrentState.SUCCESS)) {
@@ -202,7 +247,16 @@ public class ExecutorManager {
 			pipeline.getState().setLastState(CurrentState.SUCCESS);
 			build.setCurrentState(CurrentState.SUCCESS);
 
-			buildThreads.remove(build.getBuildNr());
+			Map<Build, List<Thread>> buildListMap = buildThreads.get(pipeline);
+			if (buildListMap != null) {
+				buildListMap.remove(build);
+
+				if (buildListMap.isEmpty()) {
+					buildThreads.remove(pipeline);
+				}
+			}
+
+
 			Set<Integer> builds = buildState.getCurrent().get(pipeline.getId());
 			if (builds != null) {
 				builds.remove(build.getBuildNr());
@@ -233,7 +287,8 @@ public class ExecutorManager {
 		Thread thread = new Thread(stepExecutor);
 		stepExecutor.setThread(thread);
 
-		List<Thread> threadList = this.buildThreads.computeIfAbsent(build.getBuildNr(), k -> new ArrayList<>());
+		Map<Build, List<Thread>> buildListMap = this.buildThreads.computeIfAbsent(pipeline, k -> new HashMap<>());
+		List<Thread> threadList = buildListMap.computeIfAbsent(build, k -> new ArrayList<>());
 		threadList.add(thread);
 		thread.start();
 	}
