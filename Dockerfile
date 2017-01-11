@@ -24,13 +24,12 @@ RUN adduser -h /srv -s /bin/bash -D -u 1000 jobs
 RUN chown -R jobs:jobs /srv
 RUN chown -R jobs:jobs /opt/job-framework
 
-USER jobs
-ENV GRADLE_OPTS -Dgradle.user.home=/opt/job-framework/.gradle
-RUN /opt/job-framework/gradlew assemble
-USER root
+COPY docker/build.sh /build.sh
+RUN /build.sh
 
 # Allow installation of ansible
 RUN echo "jobs ALL=(root) NOPASSWD:/usr/bin/pip install ansible" >> /etc/sudoers
 
 VOLUME ["/srv"]
 CMD ["/startup.sh"]
+USER jobs
