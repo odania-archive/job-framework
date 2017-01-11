@@ -134,26 +134,28 @@ public class ExecutorManager {
 				Pipeline pipeline = pipelineIterator.next();
 				Map<Build, List<Thread>> buildListMap = buildThreads.get(pipeline);
 
-				Iterator<Build> buildIterator = buildListMap.keySet().iterator();
-				while (buildIterator.hasNext()) {
-					Build build = buildIterator.next();
-					boolean isAlive = false;
+				if (buildListMap != null) {
+					Iterator<Build> buildIterator = buildListMap.keySet().iterator();
+					while (buildIterator.hasNext()) {
+						Build build = buildIterator.next();
+						boolean isAlive = false;
 
-					for (Thread thread : buildListMap.get(build)) {
-						if (Thread.State.NEW.equals(thread.getState()) || thread.isAlive()) {
-							isAlive = true;
-						}
-					}
-
-					if (!isAlive) {
-						buildIterator.remove();
-						Set<Integer> currentBuildNrs = buildStateCurrent.get(pipeline.getId());
-						currentBuildNrs.remove(build.getBuildNr());
-
-						if (currentBuildNrs.isEmpty()) {
-							buildStateCurrent.remove(pipeline.getId());
+						for (Thread thread : buildListMap.get(build)) {
+							if (Thread.State.NEW.equals(thread.getState()) || thread.isAlive()) {
+								isAlive = true;
+							}
 						}
 
+						if (!isAlive) {
+							buildIterator.remove();
+							Set<Integer> currentBuildNrs = buildStateCurrent.get(pipeline.getId());
+							currentBuildNrs.remove(build.getBuildNr());
+
+							if (currentBuildNrs.isEmpty()) {
+								buildStateCurrent.remove(pipeline.getId());
+							}
+
+						}
 					}
 				}
 			}
