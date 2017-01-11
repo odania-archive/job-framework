@@ -2,39 +2,42 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="queue">
-	<table class="table table-bordered table-striped">
-		<tbody>
-		<tr>
-			<th>Queue</th>
-		</tr>
-		<tr th:each="queueEntry : ${buildState.queued}">
-			<td th:text="${queueEntry.pipelineId}"></td>
-		</tr>
-		<tr th:if="${#sets.isEmpty(buildState.queued)}">
-			<td>Empty</td>
-		</tr>
-		</tbody>
-	</table>
+	<div th:if="${buildState != null}">
+		<table class="table table-bordered table-striped">
+			<tbody>
+			<tr>
+				<th>Queue</th>
+			</tr>
+			<tr th:each="queueEntry : ${buildState.queued}">
+				<td th:text="${queueEntry.pipelineId}"></td>
+			</tr>
+			<tr th:if="${#sets.isEmpty(buildState.queued)}">
+				<td>Empty</td>
+			</tr>
+			</tbody>
+		</table>
 
-	<br/>
+		<br/>
 
-	<table class="table table-bordered table-striped">
-		<tbody>
-		<tr>
-			<th colspan="2">Running</th>
-		</tr>
-		<tr th:each="currentEntry : ${buildState.current}">
-			<td th:text="${currentEntry.key}"></td>
-			<td>
-				<a th:each="buildNr : ${currentEntry.value}" th:href="@{'/pipelines/' + ${currentEntry.key} + '/builds/' + ${buildNr}}"
-					 th:text="${buildNr}"></a>
-			</td>
-		</tr>
-		<tr th:if="${#maps.isEmpty(buildState.current)}">
-			<td colspan="2">None</td>
-		</tr>
-		</tbody>
-	</table>
+		<table class="table table-bordered table-striped">
+			<tbody>
+			<tr>
+				<th colspan="2">Running</th>
+			</tr>
+			<tr th:each="currentEntry : ${buildState.current}">
+				<td th:text="${currentEntry.key}"></td>
+				<td>
+					<a th:each="buildNr : ${currentEntry.value}"
+						 th:href="@{'/pipelines/' + ${currentEntry.key} + '/builds/' + ${buildNr}}"
+						 th:text="${buildNr}"></a>
+				</td>
+			</tr>
+			<tr th:if="${#maps.isEmpty(buildState.current)}">
+				<td colspan="2">None</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
 </div>
 </body>
 </html>
