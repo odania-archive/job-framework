@@ -2,6 +2,7 @@ package com.odaniait.jobframework.executors;
 
 import com.odaniait.jobframework.exceptions.BuildException;
 import com.odaniait.jobframework.models.*;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,21 @@ public class StepExecutor implements Runnable {
 
 		String buildDir = build.getWorkspaceDir().getAbsolutePath();
 		File stepBuildDir = new File(buildDir + "/" + step.getName().replace(" ", "-"));
-		if (!stepBuildDir.isDirectory() && !stepBuildDir.mkdirs()) {
+		if (stepBuildDir.isDirectory()) {
+			logger.info("Removing directory " + stepBuildDir + " before running Step " + step.getName());
+			try {
+				FileUtils.deleteDirectory(stepBuildDir);
+			} catch (IOException e) {
+				logger.error("Could not create step build directory " + stepBuildDir);
+				try {
+					build.setStepResult(step, 42, "Could not create step build directory " + stepBuildDir);
+				} catch (IOException | BuildException e1) {
+					logger.error("Error setting step result for Pipeline " + pipeline.getId() + " Step " + step.getName());
+				}
+			}
+		}
+
+		if (!stepBuildDir.mkdirs()) {
 			logger.error("Could not create step build directory " + stepBuildDir);
 		}
 
