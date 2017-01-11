@@ -17,3 +17,5 @@ env:
     - COVERALLS_REPO_TOKEN=4iwbHAFuPJzAeactTyXCExMGatbVYbxi1
 after_success:
   - ./gradlew cobertura coveralls
+script:
+  - ./gradlew check --info
