@@ -22,7 +22,7 @@ public class BuildExecutor implements Runnable {
 	private final Set<String> triggerSteps = new HashSet<>();
 	private final ExecutorManager executorManager;
 
-	public BuildExecutor(Pipeline pipeline, Build build, ExecutorManager executorManager) {
+	BuildExecutor(Pipeline pipeline, Build build, ExecutorManager executorManager) {
 		this.pipeline = pipeline;
 		this.build = build;
 		this.executorManager = executorManager;
@@ -122,7 +122,7 @@ public class BuildExecutor implements Runnable {
 		}
 	}
 
-	public void executeTrigger(Step step) {
+	void executeTrigger(Step step) {
 		CurrentState currentState = build.getStepStates().get(step.getName());
 		if (CurrentState.SUCCESS.equals(currentState) && !step.getOnSuccess().isEmpty()) {
 			for (String stepName : step.getOnSuccess()) {

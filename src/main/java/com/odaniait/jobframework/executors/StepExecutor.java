@@ -21,7 +21,7 @@ public class StepExecutor implements Runnable {
 	private final Build build;
 	private final BuildExecutor buildExecutor;
 
-	public StepExecutor(Pipeline pipeline, Step step, Build build, BuildExecutor buildExecutor) {
+	StepExecutor(Pipeline pipeline, Step step, Build build, BuildExecutor buildExecutor) {
 		this.pipeline = pipeline;
 		this.step = step;
 		this.build = build;

@@ -62,7 +62,7 @@ public class ExecutorManager {
 		}
 	}
 
-	public void saveState() {
+	private void saveState() {
 		try {
 			File buildStateFile = jobFrameworkConfig.getBuildStateFile();
 			mapper.writeValue(buildStateFile, buildState);
@@ -132,7 +132,7 @@ public class ExecutorManager {
 		return newBuilds;
 	}
 
-	public boolean startBuild(Pipeline pipeline, Build build) {
+	private boolean startBuild(Pipeline pipeline, Build build) {
 		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, this);
 		Thread thread = new Thread(buildExecutor);
 		Map<Build, Thread> buildListMap = buildThreads.computeIfAbsent(pipeline, k -> new HashMap<>());
@@ -142,7 +142,7 @@ public class ExecutorManager {
 		return true;
 	}
 
-	public void finishBuild(Pipeline pipeline, Build build) {
+	void finishBuild(Pipeline pipeline, Build build) {
 		lock.lock();
 
 		try {
