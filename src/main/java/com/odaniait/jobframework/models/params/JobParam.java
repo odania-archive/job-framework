@@ -8,6 +8,7 @@ import java.util.*;
 public class JobParam {
 	private String name;
 	private JobParamType paramType;
+	private String hint;
 	private List<ParamDependency> dependencies = new ArrayList<>();
 
 	public String getFieldName() {
