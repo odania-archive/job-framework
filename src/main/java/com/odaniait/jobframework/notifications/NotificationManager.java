@@ -21,6 +21,7 @@ public class NotificationManager {
 	@Autowired
 	public NotificationManager(EmailNotifier emailNotifier) {
 		notifier.put("email", emailNotifier);
+		notifier.put("script", new ScriptNotifier());
 	}
 
 	public void notifyFailure(Pipeline pipeline, Build build) {
@@ -34,9 +35,11 @@ public class NotificationManager {
 	}
 
 	private void notify(Pipeline pipeline, Build build, String notificationText) {
-		for (String notifyType : pipeline.getNotify().keySet()) {
+		for (String notifyName : pipeline.getNotify().keySet()) {
+			Map<String, String> parameter = pipeline.getNotify().get(notifyName);
+			String notifyType = parameter.get("type");
 			if (notifier.containsKey(notifyType)) {
-				notifier.get(notifyType).exec(build, pipeline.getNotify().get(notifyType), notificationText);
+				notifier.get(notifyType).exec(build, parameter, notificationText);
 			} else {
 				logger.error("Notification Type " + notifyType + " does not exist");
 			}

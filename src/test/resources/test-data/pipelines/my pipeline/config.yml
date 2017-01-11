@@ -3,6 +3,7 @@ description: This is Pipeline Number 3
 multipleExecutions: true
 notify:
   email:
+    type: email
     emails: mike@odania-it.com
 tags:
   - t1

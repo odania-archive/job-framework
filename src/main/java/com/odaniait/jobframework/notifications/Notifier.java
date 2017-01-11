@@ -5,5 +5,5 @@ import com.odaniait.jobframework.models.Build;
 import java.util.Map;
 
 public interface Notifier {
-	void exec(Build build, Map<String, String> parameter, String notificationText);
+	boolean exec(Build build, Map<String, String> parameter, String notificationText);
 }

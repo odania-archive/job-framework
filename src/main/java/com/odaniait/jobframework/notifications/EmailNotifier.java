@@ -25,7 +25,7 @@ public class EmailNotifier implements Notifier {
 	private MailSender mailSender;
 
 	@Override
-	public void exec(Build build, Map<String, String> parameter, String notificationText) {
+	public boolean exec(Build build, Map<String, String> parameter, String notificationText) {
 		String emails = parameter.get("emails");
 		String output = "";
 
@@ -45,6 +45,9 @@ public class EmailNotifier implements Notifier {
 			mailSender.send(message);
 		} catch (MailException e) {
 			logger.error("Error sending email", e);
+			return false;
 		}
+
+		return true;
 	}
 }
