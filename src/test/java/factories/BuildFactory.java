@@ -10,8 +10,14 @@ public class BuildFactory extends BaseFactory {
 		Build build = new Build();
 		build.setBuildNr(faker.number().randomDigit());
 		build.setStartedAt(new Date());
-		build.setBuildDir(new File("/tmp/job-framework-test/builds/" + build.getBuildNr()));
 		build.setWorkspaceDir(new File("/tmp/job-framework-test/workspace/" + build.getBuildNr()));
+
+		File buildDir = new File("/tmp/job-framework-test/builds/" + build.getBuildNr());
+		build.setBuildDir(buildDir);
+
+		if (!buildDir.isDirectory()) {
+			buildDir.mkdirs();
+		}
 
 		return build;
 	}
