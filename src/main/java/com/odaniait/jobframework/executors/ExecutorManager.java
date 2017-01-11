@@ -26,7 +26,7 @@ public class ExecutorManager {
 	private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
 	@Getter
-	private Map<Pipeline, Map<Build, List<Thread>>> buildThreads = new HashMap<>();
+	private Map<Pipeline, Map<Build, Thread>> buildThreads = new HashMap<>();
 	private final Lock lock = new ReentrantLock();
 
 	private JobFrameworkConfig jobFrameworkConfig;
@@ -135,9 +135,8 @@ public class ExecutorManager {
 	public boolean startBuild(Pipeline pipeline, Build build) {
 		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, this);
 		Thread thread = new Thread(buildExecutor);
-		Map<Build, List<Thread>> buildListMap = buildThreads.computeIfAbsent(pipeline, k -> new HashMap<>());
-		List<Thread> threads = buildListMap.computeIfAbsent(build, k -> new ArrayList<>());
-		threads.add(thread);
+		Map<Build, Thread> buildListMap = buildThreads.computeIfAbsent(pipeline, k -> new HashMap<>());
+		buildListMap.put(build, thread);
 		thread.start();
 
 		return true;
@@ -147,6 +146,15 @@ public class ExecutorManager {
 		lock.lock();
 
 		try {
+			Map<Build, Thread> buildListMap = buildThreads.get(pipeline);
+			if (buildListMap != null) {
+				buildListMap.remove(build);
+
+				if (buildListMap.isEmpty()) {
+					buildThreads.remove(pipeline);
+				}
+			}
+
 			if (ResultStatus.SUCCESS.equals(build.getResultStatus())) {
 				CurrentState lastState = pipeline.getState().getLastState();
 				if (!CurrentState.SUCCESS.equals(lastState)) {
