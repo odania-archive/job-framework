@@ -42,9 +42,6 @@ public class ApiPipelinesTest {
 	@Autowired
 	private PipelineManager pipelineManager;
 
-	@Mock
-	private ExecutorManager executorManager;
-
 	private MockMvc mvc;
 
 	@Before
