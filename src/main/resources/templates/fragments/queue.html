@@ -11,7 +11,7 @@
 			<tr ng-repeat="queueEntry in queued">
 				<td>
 					{{ queueEntry.pipelineId }}
-					<a ng-href="/queue/{{ queueEntry.pipelineId }}/remove/{{ $index }}">X</a>
+					<a ng-click="removeFromQueue(queueEntry.pipelineId, $index)">X</a>
 				</td>
 			</tr>
 			<tr ng-if="queued.length == 0">
@@ -36,7 +36,7 @@
 								{{ buildNr }}
 							</a>
 
-							<a ng-href="/pipelines/{{ pipelineId }}/builds/{{ buildNr }}/abort">
+							<a ng-click="abortBuild(pipelineId, buildNr)">
 								X
 							</a>
 						</span>

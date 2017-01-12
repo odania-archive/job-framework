@@ -5,71 +5,79 @@
 </head>
 <body>
 <div th:fragment="content">
-	<table class="table table-bordered table-striped">
-		<tbody>
-		<tr>
-			<th>ID</th>
-			<td>
-				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id}}" th:text="${pipeline.id}"></a>
-			</td>
-		</tr>
-		<tr>
-			<th>Build ID</th>
-			<td th:text="${build.buildNr}"></td>
-		</tr>
-		<tr>
-			<th>Parameter</th>
-			<td th:text="${build.parameter}"></td>
-		</tr>
-		<tr>
-			<th>Result</th>
-			<td th:text="${build.currentState}"></td>
-		</tr>
-		<tr>
-			<th>Time</th>
-			<td>
-				<span th:text="${build.startedAt}"></span> - <span th:text="${build.finishedAt}"></span>
-			</td>
-		</tr>
-		<tr>
-			<th>Duration</th>
-			<td th:text="${build.duration}"></td>
-		</tr>
-		<tr>
-			<th>Rerun</th>
-			<td>
-				<a href="rerun.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${build.buildNr} + '/rerun'}"
-					 th:text="${'Rerun with parameters'}"></a>
-			</td>
-		</tr>
-		</tbody>
-	</table>
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		var pipelineId = [[${pipeline.id}]];
+		var buildNr = [[${build.buildNr}]];
+		/*]]>*/
+	</script>
 
-	<div th:each="result : ${build.results}">
-		<h2 class="title" th:text="${result.key}"></h2>
+	<div ng-controller="BuildController">
+		<table class="table table-bordered table-striped">
+			<tbody>
+			<tr>
+				<th>ID</th>
+				<td>
+					<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id}}" th:text="${pipeline.id}"></a>
+				</td>
+			</tr>
+			<tr>
+				<th>Build ID</th>
+				<td th:text="${build.buildNr}"></td>
+			</tr>
+			<tr>
+				<th>Parameter</th>
+				<td th:text="${build.parameter}"></td>
+			</tr>
+			<tr>
+				<th>Result</th>
+				<td>{{ build.currentState }}</td>
+			</tr>
+			<tr>
+				<th>Time</th>
+				<td>
+					{{ build.startedAt }} - {{ build.finishedAt }}
+				</td>
+			</tr>
+			<tr>
+				<th>Duration</th>
+				<td>{{ build.duration }}</td>
+			</tr>
+			<tr>
+				<th>Rerun</th>
+				<td>
+					<a href="rerun.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${build.buildNr} + '/rerun'}"
+						 th:text="${'Rerun with parameters'}"></a>
+				</td>
+			</tr>
+			</tbody>
+		</table>
 
-		<div class="information">
-			<table class="table table-bordered table-striped">
-				<tr>
-					<th>Result</th>
-					<td th:text="${result.value.resultStatus}"></td>
-				</tr>
-				<tr>
-					<th>Exit Code</th>
-					<td th:text="${result.value.exitCode}"></td>
-				</tr>
-				<tr>
-					<th>Output</th>
-					<td>
-						<pre th:text="${result.value.output}"></pre>
-					</td>
-				</tr>
-			</table>
+		<div ng-repeat="(stepName, result) in build.results">
+			<h2 class="title">{{ stepName }}</h2>
+
+			<div class="information">
+				<table class="table table-bordered table-striped">
+					<tr>
+						<th>Result</th>
+						<td>{{ result.resultStatus }}</td>
+					</tr>
+					<tr>
+						<th>Exit Code</th>
+						<td>{{ result.exitCode }}</td>
+					</tr>
+					<tr>
+						<th>Output</th>
+						<td>
+							<pre>{{ result.output }}</pre>
+						</td>
+					</tr>
+				</table>
+			</div>
 		</div>
+
+		<div style="clear: both;"></div>
 	</div>
-
-	<div style="clear: both;"></div>
-
 </div>
 </body>
 </html>
