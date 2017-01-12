@@ -97,7 +97,7 @@ public class PipelineState implements Serializable {
 	}
 
 	public void cleanupBuilds(Integer keepBuilds, File pipelineWorkspacePath) throws IOException {
-		logger.info("Cleaning builds Current: " + builds.size() + " Max: " + keepBuilds);
+		logger.info("Cleaning builds Current: " + builds.size() + " Max: " + keepBuilds + " (Direcory: " + pipelineWorkspacePath + ")");
 
 		List<Integer> buildKeys = new ArrayList<>(builds.keySet());
 		Collections.sort(buildKeys);

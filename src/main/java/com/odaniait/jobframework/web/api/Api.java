@@ -6,8 +6,6 @@ import com.odaniait.jobframework.executors.ExecutorManager;
 import com.odaniait.jobframework.models.Pipeline;
 import com.odaniait.jobframework.pipeline.PipelineManager;
 import com.odaniait.jobframework.web.ResourceNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
