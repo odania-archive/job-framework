@@ -79,7 +79,7 @@ public class PipelineState implements Serializable {
 		}
 	}
 
-	public Build prepareBuild() throws IOException, BuildException {
+	Build prepareBuild() throws IOException, BuildException {
 		currentState = CurrentState.RUNNING;
 
 		int currentBuildNumber = nextBuildNumber++;

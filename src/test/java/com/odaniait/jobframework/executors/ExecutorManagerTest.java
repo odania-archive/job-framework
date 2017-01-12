@@ -13,9 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,12 +47,9 @@ public class ExecutorManagerTest {
 
 		when(jobFrameworkConfig.getWorkspacePath()).thenReturn(new File("/tmp/job-framework-test/workspace"));
 		when(jobFrameworkConfig.getPipelinePath()).thenReturn("/tmp/job-framework-test/pipelines");
-		when(jobFrameworkConfig.getBuildStateFile()).thenAnswer(new Answer<File>() {
-			@Override
-			public File answer(InvocationOnMock invocation) throws Throwable {
-				String randomString = new BigInteger(130, random).toString(32);
-				return new File("/tmp/job-framework-test/pipelines/state_" + randomString + ".yml");
-			}
+		when(jobFrameworkConfig.getBuildStateFile()).thenAnswer(invocation -> {
+			String randomString = new BigInteger(130, random).toString(32);
+			return new File("/tmp/job-framework-test/pipelines/state_" + randomString + ".yml");
 		});
 		new File("/tmp/job-framework-test/pipelines").mkdirs();
 	}

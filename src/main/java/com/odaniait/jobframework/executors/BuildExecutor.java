@@ -43,7 +43,7 @@ public class BuildExecutor implements Runnable {
 		if (CurrentState.SUCCESS.equals(finished)) {
 			logger.info("Finished Build");
 			try {
-				build.finish();
+				pipeline.getState().finish(build);
 				executorManager.finishBuild(pipeline, build);
 			} catch (IOException | BuildException e) {
 				logger.error("Error finishing build", e);
