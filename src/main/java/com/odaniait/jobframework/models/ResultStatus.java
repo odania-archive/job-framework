@@ -13,7 +13,7 @@ public enum ResultStatus {
 			return SUCCESS;
 		}
 
-		if (exitCode == 1) {
+		if (exitCode == 42) {
 			return ABORTED;
 		}
 
