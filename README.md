@@ -112,13 +112,8 @@ The pipeline configuration is defined in the config.yml folder.
 
 # Todo / Ideas
 
-- Automatic reloading of pages (builds, etc.)
 - Execution limit for jobs or steps
 - Reload config with or without waiting for finished jobs
-- Save queue
-- Abort
-- Retry
-- Script Notifier
 - Error View (Special Logging)
 
 # FAQ
