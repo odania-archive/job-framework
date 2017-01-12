@@ -2,19 +2,19 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="queue">
-	<div th:if="${buildState != null}">
+	<div ng-controller="QueueController">
 		<table class="table table-bordered table-striped">
 			<tbody>
 			<tr>
 				<th>Queue</th>
 			</tr>
-			<tr th:each="queueEntry,status : ${buildState.queued}">
+			<tr ng-repeat="queueEntry in queued">
 				<td>
-					<span th:text="${queueEntry.pipelineId}"></span>
-					<a th:href="@{'/queue/' + ${queueEntry.pipelineId} + '/remove/' + ${status.index}}">X</a>
+					{{ queueEntry.pipelineId }}
+					<a ng-href="/queue/{{ queueEntry.pipelineId }}/remove/{{ $index }}">X</a>
 				</td>
 			</tr>
-			<tr th:if="${#sets.isEmpty(buildState.queued)}">
+			<tr ng-if="queued.length == 0">
 				<td>Empty</td>
 			</tr>
 			</tbody>
@@ -27,19 +27,24 @@
 			<tr>
 				<th colspan="2">Running</th>
 			</tr>
-			<tr th:each="currentEntry : ${buildState.current}">
-				<td th:text="${currentEntry.key}"></td>
+			<tr ng-repeat="(pipelineId, builds) in currentBuilds">
+				<td>{{ pipelineId }}</td>
 				<td>
-					<div th:each="buildNr : ${currentEntry.value}" style="float: left; width: 100%;">
-						<a th:href="@{'/pipelines/' + ${currentEntry.key} + '/builds/' + ${buildNr}}"
-							 th:text="${buildNr}"></a>
+					<div ng-repeat="buildNr in builds" style="width: 100%; border-bottom: 1px dotted darkgray;">
+						<span class="float: left;">
+							<a ng-href="/pipelines/{{ pipelineId }}/builds/{{ buildNr }}">
+								{{ buildNr }}
+							</a>
 
-						<a th:href="@{'/queue/' + ${currentEntry.key} + '/build/' + ${buildNr} + '/abort'}">X</a>
-						<br/>
+							<a ng-href="/pipelines/{{ pipelineId }}/builds/{{ buildNr }}/abort">
+								X
+							</a>
+						</span>
+						<div class="clear: both;"></div>
 					</div>
 				</td>
 			</tr>
-			<tr th:if="${#maps.isEmpty(buildState.current)}">
+			<tr ng-if="jQuery.isEmptyObject(currentBuilds)">
 				<td colspan="2">None</td>
 			</tr>
 			</tbody>
