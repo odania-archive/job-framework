@@ -6,8 +6,10 @@ import com.odaniait.jobframework.executors.ExecutorManager;
 import com.odaniait.jobframework.models.Build;
 import com.odaniait.jobframework.models.Pipeline;
 import com.odaniait.jobframework.models.PipelineState;
+import com.odaniait.jobframework.models.View;
 import com.odaniait.jobframework.pipeline.PipelineManager;
 import com.odaniait.jobframework.web.exceptions.ApiResourceNotFoundException;
+import com.odaniait.jobframework.web.exceptions.ResourceNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Controller
 @RequestMapping(path = "/api/pipelines", produces = "application/json")
@@ -29,10 +33,23 @@ public class ApiPipelines {
 
 	@RequestMapping("")
 	@ResponseBody
-	public String showPipelines() throws JsonProcessingException {
+	public String showPipelines(@RequestParam(value = "viewId", required = false) String viewId) throws JsonProcessingException {
 		Map<String, PipelineStateResponse> response = new HashMap<>();
-		for (Pipeline pipeline : pipelineManager.getPipelines().values()) {
-			response.put(pipeline.getId(), new PipelineStateResponse(pipeline, pipeline.getState(), null));
+
+		Map<String, Pipeline> pipelines;
+		if (viewId == null) {
+			pipelines = pipelineManager.getPipelines();
+		} else {
+			pipelines = getViewPipelines(viewId);
+		}
+
+		ArrayList<String> pipelineIds = new ArrayList<>(pipelines.keySet());
+		Collections.sort(pipelineIds);
+		Collections.reverse(pipelineIds);
+
+		for (String pipelineId : pipelineIds) {
+			Pipeline pipeline = pipelines.get(pipelineId);
+			response.put(pipelineId, new PipelineStateResponse(pipeline, pipeline.getState(), null));
 		}
 
 		return mapper.writeValueAsString(response);
@@ -80,5 +97,41 @@ public class ApiPipelines {
 		private Pipeline pipeline;
 		private PipelineState state;
 		private List<Build> builds = new ArrayList<>();
+	}
+
+	private Map<String, Pipeline> getViewPipelines(String viewId) {
+		View view = pipelineManager.getView(viewId);
+
+		if (view == null) {
+			throw new ResourceNotFoundException();
+		}
+
+		// Find matching pipelines
+		Map<String, Pipeline> pipelines = new HashMap<>();
+		for (String pipelineId : view.getPipelines()) {
+			pipelines.put(pipelineId, pipelineManager.getPipeline(pipelineId));
+		}
+
+		if (view.getPattern() != null) {
+			Pattern pattern = Pattern.compile(view.getPattern());
+			for (Map.Entry<String, Pipeline> pipelineEntry : pipelineManager.getPipelines().entrySet()) {
+				Matcher matcher = pattern.matcher(pipelineEntry.getKey());
+				if (matcher.find()) {
+					pipelines.put(pipelineEntry.getKey(), pipelineEntry.getValue());
+				}
+			}
+		}
+
+		if (!view.getTags().isEmpty()) {
+			for (Map.Entry<String, Pipeline> pipelineEntry : pipelineManager.getPipelines().entrySet()) {
+				Set<String> pipelineTags = pipelineEntry.getValue().getTags();
+
+				if (pipelineTags.containsAll(view.getTags())) {
+					pipelines.put(pipelineEntry.getKey(), pipelineEntry.getValue());
+				}
+			}
+		}
+
+		return pipelines;
 	}
 }

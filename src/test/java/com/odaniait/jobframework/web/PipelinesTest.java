@@ -12,10 +12,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -35,11 +32,6 @@ public class PipelinesTest {
 	@Test
 	public void requestIndex() throws Exception {
 		ResultActions resultActions = mvc.perform(get("/pipelines")).andExpect(status().isOk());
-		resultActions.andExpect(content().string(allOf(
-			containsString("/pipelines/pipeline-1"),
-			containsString("/pipelines/pipeline-2"),
-			containsString("/pipelines/my pipeline")
-		)));
 	}
 
 	@Test

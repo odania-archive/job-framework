@@ -1,8 +1,14 @@
-jobFramework.controller('ListPipelinesController', ['$scope', '$http', '$interval', function ($scope, $http, $interval) {
+jobFramework.controller('ListPipelinesController', ['$scope', '$http', '$interval', '$window',
+	function ($scope, $http, $interval, $window) {
 		console.log("ListPipelinesController");
 
 		function reloadPipelines() {
-			$http.get("/api/pipelines").then(function (response) {
+			var params = {};
+			if ($window.viewId != null) {
+				params = {viewId: $window.viewId}
+			}
+
+			$http.get("/api/pipelines", {params: params}).then(function (response) {
 				$scope.pipelines = response.data;
 			}, function (err) {
 				console.error("Error occurred");
@@ -11,6 +17,7 @@ jobFramework.controller('ListPipelinesController', ['$scope', '$http', '$interva
 		}
 
 		$scope.pipelines = {};
+		$scope.viewId = null;
 
 		reloadPipelines();
 		var reloadPipelinesTimer = $interval(reloadPipelines, 4000);

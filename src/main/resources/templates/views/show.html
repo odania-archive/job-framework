@@ -5,6 +5,12 @@
 </head>
 <body>
 <div th:fragment="content">
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		var viewId = [[${viewId}]];
+		/*]]>*/
+	</script>
+
 	<table class="table table-bordered table-striped">
 		<thead>
 		<tr>

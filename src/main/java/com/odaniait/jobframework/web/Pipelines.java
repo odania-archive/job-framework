@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
+@RequestMapping("/pipelines")
 public class Pipelines {
 	@Autowired
 	private ExecutorManager executorManager;
@@ -18,14 +19,14 @@ public class Pipelines {
 	@Autowired
 	private PipelineManager pipelineManager;
 
-	@RequestMapping("/pipelines")
+	@RequestMapping("")
 	public String index(Model model) {
 		model.addAttribute("pipelines", pipelineManager.getPipelines());
 
 		return "pipelines/index";
 	}
 
-	@RequestMapping("/pipelines/{pipelineId}")
+	@RequestMapping("/{pipelineId}")
 	public String show(@PathVariable String pipelineId, Model model) {
 		Pipeline pipeline = pipelineManager.getPipeline(pipelineId);
 
@@ -39,7 +40,7 @@ public class Pipelines {
 		return "pipelines/show";
 	}
 
-	@RequestMapping("/pipelines/{pipelineId}/run")
+	@RequestMapping("/{pipelineId}/run")
 	public String run(@PathVariable String pipelineId, Model model) {
 		Pipeline pipeline = pipelineManager.getPipeline(pipelineId);
 

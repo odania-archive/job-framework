@@ -12,9 +12,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,40 +34,24 @@ public class ViewsTest {
 	@Test
 	public void requestShowView1() throws Exception {
 		ResultActions resultActions = mvc.perform(get("/views/view-1")).andExpect(status().isOk());
-		resultActions.andExpect(content().string(allOf(
-			containsString("/pipelines/pipeline-1"),
-			containsString("/pipelines/pipeline-2"),
-			containsString("/pipelines/my pipeline")
-		)));
+		resultActions.andExpect(content().string(containsString("viewId = 'view-1")));
 	}
 
 	@Test
 	public void requestShowView2() throws Exception {
 		ResultActions resultActions = mvc.perform(get("/views/view-2")).andExpect(status().isOk());
-		resultActions.andExpect(content().string(allOf(
-			not(containsString("/pipelines/pipeline-1")),
-			containsString("/pipelines/pipeline-2"),
-			not(containsString("/pipelines/my pipeline"))
-		)));
+		resultActions.andExpect(content().string(containsString("viewId = 'view-2")));
 	}
 
 	@Test
 	public void requestShowView3() throws Exception {
 		ResultActions resultActions = mvc.perform(get("/views/view 3")).andExpect(status().isOk());
-		resultActions.andExpect(content().string(allOf(
-			containsString("/pipelines/pipeline-1"),
-			not(containsString("/pipelines/pipeline-2")),
-			not(containsString("/pipelines/my pipeline"))
-		)));
+		resultActions.andExpect(content().string(containsString("viewId = 'view 3")));
 	}
 
 	@Test
 	public void requestShowViewWithTags() throws Exception {
 		ResultActions resultActions = mvc.perform(get("/views/view 4")).andExpect(status().isOk());
-		resultActions.andExpect(content().string(allOf(
-			containsString("/pipelines/pipeline-1"),
-			not(containsString("/pipelines/pipeline-2")),
-			containsString("/pipelines/my pipeline")
-		)));
+		resultActions.andExpect(content().string(containsString("viewId = 'view 4")));
 	}
 }
