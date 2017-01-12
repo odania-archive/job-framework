@@ -5,45 +5,62 @@
 </head>
 <body>
 <div th:fragment="list-pipelines">
-	<table class="table table-bordered table-striped">
-		<thead>
-		<tr>
-			<td>Status</td>
-			<td>ID</td>
-			<td>Last Success</td>
-			<td>Last Failure</td>
-			<td>Last Duration</td>
-			<td>Cron</td>
-			<td></td>
-		</tr>
-		</thead>
-		<tbody>
-		<tr th:if="${pipelines.empty}">
-			<td colspan="7">
-				<b>No tasks</b>
-			</td>
-		</tr>
-		<tr th:each="pipeline : ${pipelines}">
-			<td th:text="${pipeline.value.state.currentState}"></td>
-			<td><a href="view.html" th:href="@{'/pipelines/' + ${pipeline.key}}" th:text="${pipeline.key}">Title ...</a></td>
-			<td>
-				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.key} + '/builds/' + ${pipeline.value.state.lastSuccessfulRun}}"
-					th:text="${pipeline.value.state.lastSuccessfulRun != null} ? ${pipeline.value.state.lastSuccessfulRun} : '-'"></a>
-			</td>
-			<td>
-				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.key} + '/builds/' + ${pipeline.value.state.lastFailedRun}}"
-					 th:text="${pipeline.value.state.lastFailedRun != null} ? ${pipeline.value.state.lastFailedRun} : '-'"></a>
-			</td>
-			<td th:text="${pipeline.value.state.lastDuration}"></td>
-			<td th:if="${pipeline.value.cron} == null">
-				-
-			</td>
-			<td th:if="${pipeline.value.cron} != null" th:text="${pipeline.value.cron}">
-			</td>
-			<td><a href="run.html" th:href="@{'/pipelines/' + ${pipeline.value.id} + '/run'}">Run</a></td>
-		</tr>
-		</tbody>
-	</table>
+	<div ng-controller="ListPipelinesController">
+		<table class="table table-bordered table-striped">
+			<thead>
+			<tr>
+				<td>Status</td>
+				<td>ID</td>
+				<td>Last Success</td>
+				<td>Last Failure</td>
+				<td>Last Duration</td>
+				<td>Cron</td>
+				<td></td>
+			</tr>
+			</thead>
+			<tbody>
+			<tr th:if="pipelines.length == 0">
+				<td colspan="7">
+					<b>No pipelines</b>
+				</td>
+			</tr>
+			<tr ng-repeat="(pipelineId, data) in pipelines">
+				<td>{{ data.state.currentState }}</td>
+				<td>
+					<a ng-href="/pipelines/{{ pipelineId }}">{{ pipelineId }}</a>
+				</td>
+				<td ng-if="data.state.lastSuccessfulRun == null">
+					-
+				</td>
+				<td ng-if="data.state.lastSuccessfulRun != null">
+					<a ng-href="/pipelines/{{ pipelineId }}/builds/{{ data.state.lastSuccessfulRun }}">
+						{{ data.state.lastSuccessfulRun }}
+					</a>
+				</td>
+				<td ng-if="data.state.lastFailedRun == null">
+					-
+				</td>
+				<td ng-if="data.state.lastFailedRun != null">
+					<a ng-href="/pipelines/{{ pipelineId }}/builds/{{ data.state.lastFailedRun }}">
+						{{ data.state.lastFailedRun }}
+					</a>
+				</td>
+				<td>
+					{{ data.state.lastDuration }}
+				</td>
+				<td ng-if="data.pipeline.cron == null">
+					-
+				</td>
+				<td ng-if="data.pipeline.cron != null">
+					{{ data.pipeline.cron }}
+				</td>
+				<td>
+					<a ng-href="/pipelines/{{ pipelineId }}/run">Run</a>
+				</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
 
 </div>
 </body>

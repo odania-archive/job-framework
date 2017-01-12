@@ -3,7 +3,6 @@ jobFramework.controller('QueueController', ['$scope', '$http', '$interval', func
 
 	function reloadQueue() {
 		$http.get("/api/queue").then(function (response) {
-			console.log("Success reload queue", response.data);
 			$scope.queued = response.data.queued;
 			$scope.currentBuilds = response.data.current;
 		}, function (err) {

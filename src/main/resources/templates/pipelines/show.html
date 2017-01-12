@@ -5,93 +5,107 @@
 </head>
 <body>
 <div th:fragment="content">
-	<table class="table table-bordered table-striped">
-		<tbody>
-		<tr>
-			<th>ID</th>
-			<td>
-				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id}}" th:text="${pipeline.id}"></a>
-			</td>
-		</tr>
-		<tr>
-			<th>Description</th>
-			<td th:text="${pipeline.description}"></td>
-		</tr>
-		<tr>
-			<th>Cron</th>
-			<td th:text="${pipeline.cron}"></td>
-		</tr>
-		<tr>
-			<th>Last run</th>
-			<td th:if="${!pipeline.state.builds.isEmpty()}">
-				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/latest'}">Latest run ...</a>
-			</td>
-			<td th:if="${pipeline.state.builds.isEmpty()}">
-				-
-			</td>
-		</tr>
-		<tr>
-			<th>Last successfull run</th>
-			<td th:if="${pipeline.state.lastSuccessfulRun != null}">
-				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${pipeline.state.lastSuccessfulRun}}" th:text="${pipeline.state.lastSuccessfulRun}">Last Successfull run ...</a>
-			</td>
-			<td th:if="${pipeline.state.lastSuccessfulRun == null}">
-				-
-			</td>
-		</tr>
-		<tr>
-			<th>Last failed run</th>
-			<td th:if="${pipeline.state.lastFailedRun != null}">
-				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${pipeline.state.lastFailedRun}}" th:text="${pipeline.state.lastFailedRun}">Last Failed run ...</a>
-			</td>
-			<td th:if="${pipeline.state.lastFailedRun == null}">
-				-
-			</td>
-		</tr>
-		<tr>
-			<th>Last duration</th>
-			<td th:text="${pipeline.state.lastDuration}"></td>
-		</tr>
-		<tr>
-			<th></th>
-			<td><a href="run.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/run'}">Run</a></td>
-		</tr>
-		</tbody>
-	</table>
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		var pipelineId = [[${pipeline.id}]];
+		/*]]>*/
+	</script>
 
-	<div th:each="step : ${pipeline.steps}" class="pipeline-item">
-		<div class="title" th:text="${step.name}"></div>
+	<div ng-controller="PipelineController">
+		<table class="table table-bordered table-striped">
+			<tbody>
+			<tr>
+				<th>ID</th>
+				<td>
+					<a ng-href="/pipelines/{{ pipeline.id }}">{{ pipeline.id }}</a>
+				</td>
+			</tr>
+			<tr>
+				<th>Description</th>
+				<td>{{ pipeline.description }}</td>
+			</tr>
+			<tr>
+				<th>Cron</th>
+				<td>{{ pipeline.cron }}</td>
+			</tr>
+			<tr>
+				<th>Last run</th>
+				<td th:if="${!pipeline.state.builds.isEmpty()}">
+					<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/latest'}">Latest run ...</a>
+				</td>
+				<td th:if="${pipeline.state.builds.isEmpty()}">
+					-
+				</td>
+			</tr>
+			<tr>
+				<th>Last successfull run</th>
+				<td th:if="${pipeline.state.lastSuccessfulRun != null}">
+					<a href="view.html"
+						 th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${pipeline.state.lastSuccessfulRun}}"
+						 th:text="${pipeline.state.lastSuccessfulRun}">Last Successfull run ...</a>
+				</td>
+				<td th:if="${pipeline.state.lastSuccessfulRun == null}">
+					-
+				</td>
+			</tr>
+			<tr>
+				<th>Last failed run</th>
+				<td th:if="${pipeline.state.lastFailedRun != null}">
+					<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${pipeline.state.lastFailedRun}}"
+						 th:text="${pipeline.state.lastFailedRun}">Last Failed run ...</a>
+				</td>
+				<td th:if="${pipeline.state.lastFailedRun == null}">
+					-
+				</td>
+			</tr>
+			<tr>
+				<th>Last duration</th>
+				<td th:text="${pipeline.state.lastDuration}"></td>
+			</tr>
+			<tr>
+				<th></th>
+				<td><a href="run.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/run'}">Run</a></td>
+			</tr>
+			</tbody>
+		</table>
 
-		<div class="trigger" th:text="${step.triggerType}"></div>
+		<div th:each="step : ${pipeline.steps}" class="pipeline-item">
+			<div class="title" th:text="${step.name}"></div>
 
-		<div th:each="job : ${step.jobs}" class="job-item">
-			<div class="title" th:text="${job.name}"></div>
+			<div class="trigger" th:text="${step.triggerType}"></div>
+
+			<div th:each="job : ${step.jobs}" class="job-item">
+				<div class="title" th:text="${job.name}"></div>
+			</div>
 		</div>
+
+		<div style="clear: both;"></div>
+
+		<table class="table table-bordered table-striped">
+			<thead>
+			<tr>
+				<td>Build Number</td>
+				<td ng-repeat="step in pipeline.steps">{{ step.name }}</td>
+			</tr>
+			<tr ng-repeat="build in builds">
+				<td>
+					<a ng-href="/pipelines/{{ pipeline.id }}/builds/{{ build.buildNr }}">
+						{{ build.buildNr }}
+					</a>
+				</td>
+				<td ng-repeat="step in pipeline.steps" ng-class="getStepCssClass(step, build)">
+					<a ng-href="/pipelines/{{ pipeline.id }}/builds/{{ build.buildNr }}">
+						{{ getResultStatusFor(step, build) }}
+
+						<p ng-if="build.results[step.name] != null">
+							Exit Code: {{ build.results[step.name].exitCode }}
+						</p>
+					</a>
+				</td>
+			</tr>
+			</thead>
+		</table>
 	</div>
-
-	<div style="clear: both;"></div>
-
-	<table class="table table-bordered table-striped">
-		<thead>
-		<tr>
-			<td>Build Number</td>
-			<td th:each="step : ${pipeline.steps}" th:text="${step.name}"></td>
-		</tr>
-		<tr th:each="build : ${builds}">
-			<td>
-				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${build.buildNr}}" th:text="${build.buildNr}"></a>
-			</td>
-			<td th:each="step : ${pipeline.steps}" th:class="${build.getResultStatusFor(step.name).name() == 'SUCCESS'} ? 'build-success' : 'build-error'">
-				<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${build.buildNr}}">
-					<span th:text="${build.getResultStatusFor(step.name)}"></span>
-					<p th:if="${build.results.get(step.name)} != null">
-						Exit Code: <span th:text="${build.results.get(step.name).exitCode}"></span>
-					</p>
-				</a>
-			</td>
-		</tr>
-		</thead>
-	</table>
 
 </div>
 </body>
