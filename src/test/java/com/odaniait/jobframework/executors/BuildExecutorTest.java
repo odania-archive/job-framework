@@ -150,7 +150,7 @@ public class BuildExecutorTest {
 		assertEquals(2, build.getResults().size());
 		assertEquals(CurrentState.WAITING_ON_TRIGGER, build.getStepStates().get(secondStep.getName()));
 		assertEquals(CurrentState.SUCCESS, build.getStepStates().get(thirdStep.getName()));
-		assertEquals(CurrentState.ABORTED, build.getCurrentState());
+		assertEquals(CurrentState.FAILED, build.getCurrentState());
 		verify(executorManager).finishBuild(pipeline, build);
 	}
 
