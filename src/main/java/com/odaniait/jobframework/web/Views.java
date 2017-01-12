@@ -3,6 +3,7 @@ package com.odaniait.jobframework.web;
 import com.odaniait.jobframework.models.Pipeline;
 import com.odaniait.jobframework.models.View;
 import com.odaniait.jobframework.pipeline.PipelineManager;
+import com.odaniait.jobframework.web.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

@@ -2,7 +2,7 @@ package com.odaniait.jobframework.web.helper;
 
 import com.odaniait.jobframework.executors.ExecutorManager;
 import com.odaniait.jobframework.pipeline.PipelineManager;
-import com.odaniait.jobframework.web.ResourceNotFoundException;
+import com.odaniait.jobframework.web.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
