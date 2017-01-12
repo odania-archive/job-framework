@@ -60,19 +60,21 @@ public class PipelineState implements Serializable {
 		if (buildsPath.isDirectory()) {
 			File[] fList = buildsPath.listFiles();
 
-			for (File file : fList) {
-				File infoFile = new File(file, "/info.yml");
-				if (infoFile.isFile()) {
-					Build build;
-					try {
-						build = mapper.readValue(infoFile, Build.class);
-					} catch (IOException e) {
-						logger.error("Error reading build state " + infoFile, e);
-						build = new Build();
+			if (fList != null) {
+				for (File file : fList) {
+					File infoFile = new File(file, "/info.yml");
+					if (infoFile.isFile()) {
+						Build build;
+						try {
+							build = mapper.readValue(infoFile, Build.class);
+						} catch (IOException e) {
+							logger.error("Error reading build state " + infoFile, e);
+							build = new Build();
+						}
+						build.setBuildDir(file);
+						build.setWorkspaceDir(new File(pipelineWorkspacePath + "/" + String.format("%08d", build.getBuildNr())));
+						this.builds.put(build.getBuildNr(), build);
 					}
-					build.setBuildDir(file);
-					build.setWorkspaceDir(new File(pipelineWorkspacePath + "/" + String.format("%08d", build.getBuildNr())));
-					this.builds.put(build.getBuildNr(), build);
 				}
 			}
 
