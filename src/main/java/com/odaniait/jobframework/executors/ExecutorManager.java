@@ -79,8 +79,14 @@ public class ExecutorManager {
 		lock.lock();
 
 		try {
+			QueueEntry queueEntry = new QueueEntry(pipeline.getId(), parameter);
+			if (buildState.getQueued().contains(queueEntry)) {
+				logger.info("Already in queue! Not adding! Pipeline " + pipeline.getId() + " Parameter " + parameter.toString());
+				return;
+			}
+
 			logger.info("Enqueue " + pipeline.getId());
-			buildState.getQueued().add(new QueueEntry(pipeline.getId(), parameter));
+			buildState.getQueued().add(queueEntry);
 			saveState();
 		} finally {
 			lock.unlock();
