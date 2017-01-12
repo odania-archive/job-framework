@@ -175,13 +175,17 @@ public class ExecutorManager {
 				logger.error("Expected build to be in current state! Pipeline " + pipeline.getId() + " Build " + build.getBuildNr());
 			}
 
+			PipelineState state = pipeline.getState();
+			CurrentState lastState = state.getLastState();
+			state.setLastState(state.getCurrentState());
 			if (ResultStatus.SUCCESS.equals(build.getResultStatus())) {
-				CurrentState lastState = pipeline.getState().getLastState();
 				if (!CurrentState.SUCCESS.equals(lastState)) {
 					notificationManager.notifyBackToNormal(pipeline, build);
 				}
+				state.setCurrentState(CurrentState.SUCCESS);
 			} else {
 				notificationManager.notifyFailure(pipeline, build);
+				state.setCurrentState(CurrentState.FAILED);
 			}
 
 			try {
