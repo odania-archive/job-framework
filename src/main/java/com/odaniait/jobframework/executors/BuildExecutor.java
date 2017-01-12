@@ -37,12 +37,32 @@ public class BuildExecutor implements Runnable {
 	@Override
 	public void run() {
 		logger.info("Started BuildExecutor for pipeline " + pipeline.getId() + " Build " + build.getBuildNr());
-		exec();
+		try {
+			exec();
+		} catch (InterruptedException e) {
+			logger.error("Thread interrupted", e);
+			for (Thread thread : threads) {
+				thread.interrupt();
+			}
+
+			build.setCurrentState(CurrentState.ABORTED);
+			try {
+				build.setCurrentState(CurrentState.ABORTED);
+				build.setResultStatus(ResultStatus.ABORTED);
+				pipeline.getState().setCurrentState(CurrentState.ABORTED);
+				pipeline.getState().finish(build);
+				executorManager.finishBuild(pipeline, build);
+			} catch (IOException | BuildException ex) {
+				logger.error("Error finishing build", ex);
+			}
+			return;
+		}
 
 		CurrentState finished = checkFinished();
 		if (CurrentState.SUCCESS.equals(finished)) {
 			logger.info("Finished Build");
 			try {
+				build.finish();
 				pipeline.getState().finish(build);
 				executorManager.finishBuild(pipeline, build);
 			} catch (IOException | BuildException e) {
@@ -53,7 +73,7 @@ public class BuildExecutor implements Runnable {
 		}
 	}
 
-	private void exec() {
+	private void exec() throws InterruptedException {
 		for (Step step : pipeline.getSteps()) {
 			executeStep(step);
 
@@ -77,16 +97,14 @@ public class BuildExecutor implements Runnable {
 		return CurrentState.SUCCESS;
 	}
 
-	private void waitForThreads() {
+	private void waitForThreads() throws InterruptedException {
+		checkInterrupted();
 		for (Thread thread : threads) {
-			try {
-				thread.join();
-			} catch (InterruptedException e) {
-				logger.error("Interrupted waiting for step executions on pipeline " + pipeline.getId() + " Build " + build.getBuildNr(), e);
-			}
+			thread.join();
 		}
 
 		threads.clear();
+		checkInterrupted();
 
 		if (!triggerSteps.isEmpty()) {
 			List<String> stepNames = new ArrayList<>(triggerSteps);
@@ -101,7 +119,17 @@ public class BuildExecutor implements Runnable {
 		}
 	}
 
-	private void executeStep(Step step) {
+	private void checkInterrupted() throws InterruptedException {
+		if (Thread.interrupted()) {
+			for (Thread thread : threads) {
+				thread.interrupt();
+			}
+
+			throw new InterruptedException();
+		}
+	}
+
+	private void executeStep(Step step) throws InterruptedException {
 		if (CurrentState.SUCCESS.equals(stepStates.get(step.getName()))) {
 			logger.debug("Step " + step.getName() + " already finished");
 			return;
@@ -115,6 +143,7 @@ public class BuildExecutor implements Runnable {
 				StepExecutor stepExecutor = new StepExecutor(pipeline, step, build, this);
 				Thread thread = new Thread(stepExecutor);
 				threads.add(thread);
+				checkInterrupted();
 				thread.start();
 			}
 		} else {

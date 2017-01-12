@@ -18,6 +18,10 @@
 			<td th:text="${build.buildNr}"></td>
 		</tr>
 		<tr>
+			<th>Parameter</th>
+			<td th:text="${build.parameter}"></td>
+		</tr>
+		<tr>
 			<th>Result</th>
 			<td th:text="${build.currentState}"></td>
 		</tr>
@@ -30,6 +34,13 @@
 		<tr>
 			<th>Duration</th>
 			<td th:text="${build.duration}"></td>
+		</tr>
+		<tr>
+			<th>Rerun</th>
+			<td>
+				<a href="rerun.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${build.buildNr} + '/rerun'}"
+					 th:text="${'Rerun with parameters'}"></a>
+			</td>
 		</tr>
 		</tbody>
 	</table>

@@ -18,7 +18,9 @@
 			<tbody>
 			<tr>
 				<th>ID</th>
-				<td th:text="${pipeline.id}"></td>
+				<td>
+					<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id}}" th:text="${pipeline.id}"></a>
+				</td>
 			</tr>
 			<tr>
 				<th>Step</th>

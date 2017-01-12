@@ -42,8 +42,6 @@ public class PipelineState implements Serializable {
 	}
 
 	public void finish(Build build) throws IOException, BuildException {
-		build.finish();
-
 		if (build.getResultStatus().equals(ResultStatus.SUCCESS)) {
 			lastSuccessfulRun = build.getBuildNr();
 		} else {

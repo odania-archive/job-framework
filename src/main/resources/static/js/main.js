@@ -1,6 +1,6 @@
 var jobFramework = angular.module('jobFramework', ['ngRoute']);
 
-jobFramework.controller('PipelineController', ['$scope', '$http', function ($scope, $http) {
+jobFramework.controller('PipelineController', ['$scope', '$http', '$window', function ($scope, $http, $window) {
 	console.log("Pipeline " + pipelineId);
 
 	$http.get('/api/pipelines/' + pipelineId).then(function (data) {
@@ -110,6 +110,7 @@ jobFramework.controller('PipelineController', ['$scope', '$http', function ($sco
 		console.debug("Exec", $scope.data);
 		$http.post('/api/pipelines/' + pipelineId, postData).then(function (data) {
 			console.log("Success", data);
+			$window.location.href = '/pipelines/' + pipelineId;
 		}, function (err) {
 			console.error("Error occurred");
 			console.error(err);

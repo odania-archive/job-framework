@@ -101,6 +101,7 @@ public class StepExecutor implements Runnable {
 						build.updateStepOutput(step, output);
 						linesProcessed = 0;
 					}
+					checkInterrupted();
 				}
 
 				logger.debug("Step " + step.getName() + " output:" + output);
@@ -114,6 +115,9 @@ public class StepExecutor implements Runnable {
 			}
 		} catch (IOException | InterruptedException | BuildException e) {
 			logger.error("Error executing Pipeline: " + pipeline.getId() + " Step: " + step.getName(), e);
+		} catch (ThreadInterruptedException e) {
+			build.setCurrentState(CurrentState.ABORTED);
+			return;
 		}
 
 		try {
@@ -123,5 +127,11 @@ public class StepExecutor implements Runnable {
 		}
 
 		buildExecutor.executeTrigger(step);
+	}
+
+	private void checkInterrupted() throws ThreadInterruptedException {
+		if (Thread.interrupted()) {
+			throw new ThreadInterruptedException();
+		}
 	}
 }

@@ -185,7 +185,11 @@ public class ExecutorManager {
 				state.setCurrentState(CurrentState.SUCCESS);
 			} else {
 				notificationManager.notifyFailure(pipeline, build);
-				state.setCurrentState(CurrentState.FAILED);
+				if (ResultStatus.ABORTED.equals(build.getResultStatus())) {
+					state.setCurrentState(CurrentState.ABORTED);
+				} else {
+					state.setCurrentState(CurrentState.FAILED);
+				}
 			}
 
 			try {
@@ -207,4 +211,28 @@ public class ExecutorManager {
 		}
 	}
 
+	public void abortBuild(String pipelineId, Integer buildNr) {
+		lock.lock();
+
+		try {
+			Pipeline pipeline = pipelineManager.getPipeline(pipelineId);
+			if (pipeline == null) {
+				return;
+			}
+
+			Map<Integer, Thread> threadMap = getBuildThreads().get(pipeline);
+			if (threadMap == null) {
+				return;
+			}
+
+			Thread thread = threadMap.get(buildNr);
+			if (thread == null) {
+				return;
+			}
+			thread.interrupt();
+
+		} finally {
+			lock.unlock();
+		}
+	}
 }

@@ -8,8 +8,11 @@
 			<tr>
 				<th>Queue</th>
 			</tr>
-			<tr th:each="queueEntry : ${buildState.queued}">
-				<td th:text="${queueEntry.pipelineId}"></td>
+			<tr th:each="queueEntry,status : ${buildState.queued}">
+				<td>
+					<span th:text="${queueEntry.pipelineId}"></span>
+					<a th:href="@{'/queue/' + ${queueEntry.pipelineId} + '/remove/' + ${status.index}}">X</a>
+				</td>
 			</tr>
 			<tr th:if="${#sets.isEmpty(buildState.queued)}">
 				<td>Empty</td>
@@ -27,9 +30,13 @@
 			<tr th:each="currentEntry : ${buildState.current}">
 				<td th:text="${currentEntry.key}"></td>
 				<td>
-					<a th:each="buildNr : ${currentEntry.value}"
-						 th:href="@{'/pipelines/' + ${currentEntry.key} + '/builds/' + ${buildNr}}"
-						 th:text="${buildNr}"></a>
+					<div th:each="buildNr : ${currentEntry.value}" style="float: left; width: 100%;">
+						<a th:href="@{'/pipelines/' + ${currentEntry.key} + '/builds/' + ${buildNr}}"
+							 th:text="${buildNr}"></a>
+
+						<a th:href="@{'/queue/' + ${currentEntry.key} + '/build/' + ${buildNr} + '/abort'}">X</a>
+						<br/>
+					</div>
 				</td>
 			</tr>
 			<tr th:if="${#maps.isEmpty(buildState.current)}">
