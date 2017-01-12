@@ -53,8 +53,19 @@
 			</tbody>
 		</table>
 
+		<div class="anchors">
+			<button ng-click="toggleScrollToBottom()" class="btn" ng-class="autoButtonClass">Auto-Scroll to Bottom</button>
+			<button ng-click="goToBottom()" class="btn btn-default">Scroll to Bottom</button>
+
+			<button ng-repeat="(stepName, result) in build.results" ng-click="goToAnchor(stepName)" class="btn btn-default">
+				Scroll to {{ stepName }}
+			</button>
+		</div>
+
 		<div ng-repeat="(stepName, result) in build.results">
-			<h2 class="title">{{ stepName }}</h2>
+			<h2 class="title">
+				<div class="anchor" id="anchor-{{ stepName }}">{{ stepName }}</div>
+			</h2>
 
 			<div class="information">
 				<table class="table table-bordered table-striped">
@@ -77,6 +88,8 @@
 		</div>
 
 		<div style="clear: both;"></div>
+		<div class="anchor" id="anchor-bottom"></div>
+		<button ng-click="toggleScrollToBottom()" class="btn" ng-class="autoButtonClass">Auto-Scroll to Bottom</button>
 	</div>
 </div>
 </body>

@@ -25,3 +25,7 @@ body {
 .build-error {
 	background-color: red;
 }
+
+.anchors a {
+	margin-right: 6px;
+}
