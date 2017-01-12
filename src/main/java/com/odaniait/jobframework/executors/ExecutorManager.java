@@ -26,7 +26,7 @@ public class ExecutorManager {
 	private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
 	@Getter
-	private Map<Pipeline, Map<Build, Thread>> buildThreads = new HashMap<>();
+	private Map<Pipeline, Map<Integer, Thread>> buildThreads = new HashMap<>();
 	private final Lock lock = new ReentrantLock();
 
 	private JobFrameworkConfig jobFrameworkConfig;
@@ -135,8 +135,8 @@ public class ExecutorManager {
 	private boolean startBuild(Pipeline pipeline, Build build) {
 		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, this);
 		Thread thread = new Thread(buildExecutor);
-		Map<Build, Thread> buildListMap = buildThreads.computeIfAbsent(pipeline, k -> new HashMap<>());
-		buildListMap.put(build, thread);
+		Map<Integer, Thread> buildListMap = buildThreads.computeIfAbsent(pipeline, k -> new HashMap<>());
+		buildListMap.put(build.getBuildNr(), thread);
 		thread.start();
 
 		return true;
@@ -146,13 +146,27 @@ public class ExecutorManager {
 		lock.lock();
 
 		try {
-			Map<Build, Thread> buildListMap = buildThreads.get(pipeline);
+			Map<Integer, Thread> buildListMap = buildThreads.get(pipeline);
 			if (buildListMap != null) {
-				buildListMap.remove(build);
+				buildListMap.remove(build.getBuildNr());
 
 				if (buildListMap.isEmpty()) {
 					buildThreads.remove(pipeline);
 				}
+			} else {
+				logger.error("Expected build to be in running list! Pipeline " + pipeline.getId() + " Build " + build.getBuildNr());
+			}
+
+			Set<Integer> runningBuilds = buildState.getCurrent().get(pipeline.getId());
+			if (runningBuilds != null) {
+				runningBuilds.remove(build.getBuildNr());
+
+				if (runningBuilds.isEmpty()) {
+					buildState.getCurrent().remove(pipeline.getId());
+				}
+
+			} else {
+				logger.error("Expected build to be in current state! Pipeline " + pipeline.getId() + " Build " + build.getBuildNr());
 			}
 
 			if (ResultStatus.SUCCESS.equals(build.getResultStatus())) {

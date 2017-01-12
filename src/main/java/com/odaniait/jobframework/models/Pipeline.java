@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.*;
 
 @Data
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"state"})
 public class Pipeline {
 
 	// Config
