@@ -3,5 +3,4 @@ nextBuildNumber: 1136
 lastSuccessfulRun: 1135
 lastFailedRun: null
 lastDuration: 117
-currentState: "SUCCESS"
-lastState: "SUCCESS"
+resultStatus: "SUCCESS"

@@ -88,12 +88,16 @@
 				<td ng-repeat="step in pipeline.steps">{{ step.name }}</td>
 			</tr>
 			<tr ng-repeat="build in builds">
-				<td>
+				<td ng-style="getCssColorForExitCode(build.exitCode)">
 					<a ng-href="/pipelines/{{ pipeline.id }}/builds/{{ build.buildNr }}">
-						{{ build.buildNr }}
+						Build: {{ build.buildNr }}
+						<br/>
+						{{ getExitCodeStateFor(build.exitCode).description }}
+						<br/>
+						{{ getExitCodeString(build.exitCode) }}
 					</a>
 				</td>
-				<td ng-repeat="step in pipeline.steps" ng-class="getStepCssClass(step, build)">
+				<td ng-repeat="step in pipeline.steps" ng-style="getStepCssClass(step, build)">
 					<a ng-href="/pipelines/{{ pipeline.id }}/builds/{{ build.buildNr }}">
 						{{ getResultStatusFor(step, build) }}
 
@@ -101,6 +105,11 @@
 							Exit Code: {{ build.results[step.name].exitCode }}
 						</p>
 					</a>
+				</td>
+			</tr>
+			<tr ng-if="builds.length == 0">
+				<td colspan="{{ pipeline.steps.length + 1 }}" style="text-align: center;">
+					<b>No build started</b>
 				</td>
 			</tr>
 			</thead>

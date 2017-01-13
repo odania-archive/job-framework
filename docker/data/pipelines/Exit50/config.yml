@@ -1,0 +1,12 @@
+---
+description: This pipeline exits with code 50
+multipleExecutions: true
+tags:
+  - unstable
+steps:
+  - name: Step 1
+    execute: SEQUENCE
+    triggerType: AUTO
+    jobs:
+      - name: "[Step 1] Job 1"
+        script: "exit 50"

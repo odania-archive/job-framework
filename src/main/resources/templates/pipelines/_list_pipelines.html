@@ -25,7 +25,11 @@
 				</td>
 			</tr>
 			<tr ng-repeat="(pipelineId, data) in pipelines">
-				<td>{{ data.state.currentState }}</td>
+				<td ng-style="getCssColorForExitCode(data.state.exitCode)">
+					{{ getExitCodeStateFor(data.state.exitCode).description }}
+					<br/>
+					{{ getExitCodeString(data.state.exitCode) }}
+				</td>
 				<td>
 					<a ng-href="/pipelines/{{ pipelineId }}">{{ pipelineId }}</a>
 				</td>

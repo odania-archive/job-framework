@@ -27,8 +27,8 @@ public class PipelineState implements Serializable {
 	private Integer lastFailedRun;
 	private Long lastDuration;
 
-	private CurrentState currentState = CurrentState.NOT_STARTED;
-	private CurrentState lastState = CurrentState.NOT_STARTED;
+	private ResultStatus resultStatus;
+	private Integer exitCode;
 
 	@JsonIgnore
 	private File pipelineDirectory;
@@ -80,8 +80,6 @@ public class PipelineState implements Serializable {
 	}
 
 	Build prepareBuild() throws IOException, BuildException {
-		currentState = CurrentState.RUNNING;
-
 		int currentBuildNumber = nextBuildNumber++;
 		logger.info("Current Build Number " + currentBuildNumber + " (Next " + nextBuildNumber + ")");
 

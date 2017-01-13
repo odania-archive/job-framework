@@ -7,19 +7,6 @@ public enum ResultStatus {
 	NOT_STARTED,
 	RUNNING;
 
-
-	public static ResultStatus getForExitCode(int exitCode) {
-		if (exitCode == 0) {
-			return SUCCESS;
-		}
-
-		if (exitCode == 42) {
-			return ABORTED;
-		}
-
-		return FAILED;
-	}
-
 	private static int getRate(ResultStatus resultStatus) {
 		if (resultStatus.equals(SUCCESS)) {
 			return 0;

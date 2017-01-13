@@ -1,3 +1,17 @@
+---
+exitCodeStates:
+  0:
+    resultStatus: SUCCESS
+    color: green
+    description: Success
+  50:
+    resultStatus: SUCCESS
+    color: yellow
+    description: Unstable
+  default:
+    resultStatus: FAILED
+    color: red
+    description: Failed
 views:
   Cron View:
     pipelines:

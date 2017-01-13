@@ -1,5 +1,6 @@
 package com.odaniait.jobframework.executors;
 
+import com.odaniait.jobframework.config.JobFrameworkConfig;
 import com.odaniait.jobframework.exceptions.BuildException;
 import com.odaniait.jobframework.models.*;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
@@ -17,16 +18,18 @@ public class StepExecutor implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(StepExecutor.class);
 	private SecureRandom random = new SecureRandom();
 
+	private final JobFrameworkConfig jobFrameworkConfig;
 	private final Pipeline pipeline;
 	private final Step step;
 	private final Build build;
 	private final BuildExecutor buildExecutor;
 
-	StepExecutor(Pipeline pipeline, Step step, Build build, BuildExecutor buildExecutor) {
+	StepExecutor(Pipeline pipeline, Step step, Build build, BuildExecutor buildExecutor, JobFrameworkConfig jobFrameworkConfig) {
 		this.pipeline = pipeline;
 		this.step = step;
 		this.build = build;
 		this.buildExecutor = buildExecutor;
+		this.jobFrameworkConfig = jobFrameworkConfig;
 	}
 
 	@Override
@@ -43,7 +46,7 @@ public class StepExecutor implements Runnable {
 			} catch (IOException e) {
 				logger.error("Could not create step build directory " + stepBuildDir);
 				try {
-					build.setStepResult(step, 42, "Could not create step build directory " + stepBuildDir);
+					build.setStepResult(ResultStatus.ABORTED, step, -1, "Could not create step build directory " + stepBuildDir);
 				} catch (IOException | BuildException e1) {
 					logger.error("Error setting step result for Pipeline " + pipeline.getId() + " Step " + step.getName());
 				}
@@ -121,7 +124,7 @@ public class StepExecutor implements Runnable {
 		}
 
 		try {
-			build.setStepResult(step, exitValue, output);
+			build.setStepResult(jobFrameworkConfig.getForExitCode(exitValue), step, exitValue, output);
 		} catch (IOException | BuildException e) {
 			logger.error("Error executing Pipeline: " + pipeline.getId() + " Step: " + step.getName(), e);
 		}

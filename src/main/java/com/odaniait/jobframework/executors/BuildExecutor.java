@@ -1,5 +1,6 @@
 package com.odaniait.jobframework.executors;
 
+import com.odaniait.jobframework.config.JobFrameworkConfig;
 import com.odaniait.jobframework.exceptions.BuildException;
 import com.odaniait.jobframework.models.*;
 import lombok.Getter;
@@ -12,6 +13,7 @@ import java.util.*;
 public class BuildExecutor implements Runnable {
 	private static Logger logger = LoggerFactory.getLogger(BuildExecutor.class);
 
+	private final JobFrameworkConfig jobFrameworkConfig;
 	private final Pipeline pipeline;
 	private final Build build;
 	private final Map<String, CurrentState> stepStates;
@@ -22,10 +24,11 @@ public class BuildExecutor implements Runnable {
 	private final Set<String> triggerSteps = new HashSet<>();
 	private final ExecutorManager executorManager;
 
-	BuildExecutor(Pipeline pipeline, Build build, ExecutorManager executorManager) {
+	BuildExecutor(Pipeline pipeline, Build build, ExecutorManager executorManager, JobFrameworkConfig jobFrameworkConfig) {
 		this.pipeline = pipeline;
 		this.build = build;
 		this.executorManager = executorManager;
+		this.jobFrameworkConfig = jobFrameworkConfig;
 		stepStates = build.getStepStates();
 
 		failedStates = new HashSet<>();
@@ -49,7 +52,8 @@ public class BuildExecutor implements Runnable {
 			try {
 				build.setCurrentState(CurrentState.ABORTED);
 				build.setResultStatus(ResultStatus.ABORTED);
-				pipeline.getState().setCurrentState(CurrentState.ABORTED);
+				pipeline.getState().setResultStatus(ResultStatus.ABORTED);
+				pipeline.getState().setExitCode(-1);
 				pipeline.getState().finish(build);
 				executorManager.finishBuild(pipeline, build);
 			} catch (IOException | BuildException ex) {
@@ -140,7 +144,7 @@ public class BuildExecutor implements Runnable {
 			if (StepExecute.ON_TRIGGER.equals(step.getExecute()) && !CurrentState.TRIGGERED.equals(stepStates.get(step.getName()))) {
 				stepStates.put(step.getName(), CurrentState.WAITING_ON_TRIGGER);
 			} else {
-				StepExecutor stepExecutor = new StepExecutor(pipeline, step, build, this);
+				StepExecutor stepExecutor = new StepExecutor(pipeline, step, build, this, jobFrameworkConfig);
 				Thread thread = new Thread(stepExecutor);
 				threads.add(thread);
 				checkInterrupted();

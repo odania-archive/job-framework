@@ -1,5 +1,6 @@
 package com.odaniait.jobframework.executors;
 
+import com.odaniait.jobframework.config.JobFrameworkConfig;
 import com.odaniait.jobframework.models.*;
 import factories.BuildFactory;
 import factories.PipelineFactory;
@@ -10,11 +11,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.IOException;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BuildExecutorTest {
@@ -22,9 +24,14 @@ public class BuildExecutorTest {
 	@Mock
 	private ExecutorManager executorManager;
 
+	@Mock
+	private JobFrameworkConfig jobFrameworkConfig;
+
 	@Before
-	public void setUp() {
+	public void setUp() throws IOException {
 		MockitoAnnotations.initMocks(this);
+		when(jobFrameworkConfig.getForExitCode(anyInt())).thenReturn(ResultStatus.FAILED);
+		when(jobFrameworkConfig.getForExitCode(0)).thenReturn(ResultStatus.SUCCESS);
 	}
 
 	@Test
@@ -32,7 +39,7 @@ public class BuildExecutorTest {
 		Pipeline pipeline = PipelineFactory.generate(1);
 		Build build = BuildFactory.generate();
 
-		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, executorManager);
+		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, executorManager, jobFrameworkConfig);
 		buildExecutor.run();
 
 		assertEquals(1, build.getResults().size());
@@ -45,7 +52,7 @@ public class BuildExecutorTest {
 		Pipeline pipeline = PipelineFactory.generate(2);
 		Build build = BuildFactory.generate();
 
-		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, executorManager);
+		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, executorManager, jobFrameworkConfig);
 		buildExecutor.run();
 
 		assertEquals(2, build.getResults().size());
@@ -61,7 +68,7 @@ public class BuildExecutorTest {
 		step.setTriggerType(TriggerType.MANUAL);
 		Build build = BuildFactory.generate();
 
-		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, executorManager);
+		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, executorManager, jobFrameworkConfig);
 		buildExecutor.run();
 
 		assertEquals(1, build.getResults().size());
@@ -82,7 +89,7 @@ public class BuildExecutorTest {
 		build.getStepStates().put(secondStep.getName(), CurrentState.WAITING);
 		build.continueStep(secondStep);
 
-		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, executorManager);
+		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, executorManager, jobFrameworkConfig);
 		buildExecutor.run();
 
 		assertEquals(2, build.getResults().size());
@@ -99,7 +106,7 @@ public class BuildExecutorTest {
 			step.setExecute(StepExecute.PARALLEL);
 		}
 
-		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, executorManager);
+		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, executorManager, jobFrameworkConfig);
 		buildExecutor.run();
 
 		assertEquals(3, build.getResults().size());
@@ -120,7 +127,7 @@ public class BuildExecutorTest {
 		thirdStep.setExecute(StepExecute.ON_TRIGGER);
 		Build build = BuildFactory.generate();
 
-		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, executorManager);
+		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, executorManager, jobFrameworkConfig);
 		buildExecutor.run();
 
 		assertEquals(2, build.getResults().size());
@@ -131,7 +138,7 @@ public class BuildExecutorTest {
 	}
 
 	@Test
-	public void runPipelineWithOnFailedTrigger() {
+	public void runPipelineWithOnFailedTrigger() throws IOException {
 		Pipeline pipeline = PipelineFactory.generate(3);
 
 		Step firstStep = pipeline.getSteps().get(0);
@@ -144,7 +151,7 @@ public class BuildExecutorTest {
 		thirdStep.setExecute(StepExecute.ON_TRIGGER);
 		Build build = BuildFactory.generate();
 
-		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, executorManager);
+		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, executorManager, jobFrameworkConfig);
 		buildExecutor.run();
 
 		assertEquals(2, build.getResults().size());
@@ -170,7 +177,7 @@ public class BuildExecutorTest {
 		fourthStep.setExecute(StepExecute.ON_TRIGGER);
 		Build build = BuildFactory.generate();
 
-		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, executorManager);
+		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, executorManager, jobFrameworkConfig);
 		buildExecutor.run();
 
 		assertEquals(4, build.getResults().size());

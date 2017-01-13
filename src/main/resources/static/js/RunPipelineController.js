@@ -1,9 +1,9 @@
 jobFramework.controller('RunPipelineController', ['$scope', '$http', '$window', function ($scope, $http, $window) {
 	console.log("RunPipelineController Pipeline " + pipelineId);
 
-	$http.get('/api/pipelines/' + pipelineId).then(function (data) {
-		console.info("Loaded api info", data);
-		$scope.pipeline = data.data;
+	$http.get('/api/pipelines/' + pipelineId).then(function (response) {
+		console.info("Loaded api info", response);
+		$scope.pipeline = response.data.pipeline;
 		$scope.paramsSteps = $scope.pipeline.paramsSteps;
 
 		setNextStep();

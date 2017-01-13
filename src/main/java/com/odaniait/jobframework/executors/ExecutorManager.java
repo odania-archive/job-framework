@@ -139,7 +139,7 @@ public class ExecutorManager {
 	}
 
 	private boolean startBuild(Pipeline pipeline, Build build) {
-		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, this);
+		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, this, jobFrameworkConfig);
 		Thread thread = new Thread(buildExecutor);
 		Map<Integer, Thread> buildListMap = buildThreads.computeIfAbsent(pipeline, k -> new HashMap<>());
 		buildListMap.put(build.getBuildNr(), thread);
@@ -176,20 +176,15 @@ public class ExecutorManager {
 			}
 
 			PipelineState state = pipeline.getState();
-			CurrentState lastState = state.getLastState();
-			state.setLastState(state.getCurrentState());
+			ResultStatus lastState = state.getResultStatus();
+			state.setResultStatus(build.getResultStatus());
+			state.setExitCode(build.getExitCode());
 			if (ResultStatus.SUCCESS.equals(build.getResultStatus())) {
-				if (!CurrentState.SUCCESS.equals(lastState)) {
+				if (!ResultStatus.SUCCESS.equals(lastState)) {
 					notificationManager.notifyBackToNormal(pipeline, build);
 				}
-				state.setCurrentState(CurrentState.SUCCESS);
 			} else {
 				notificationManager.notifyFailure(pipeline, build);
-				if (ResultStatus.ABORTED.equals(build.getResultStatus())) {
-					state.setCurrentState(CurrentState.ABORTED);
-				} else {
-					state.setCurrentState(CurrentState.FAILED);
-				}
 			}
 
 			try {

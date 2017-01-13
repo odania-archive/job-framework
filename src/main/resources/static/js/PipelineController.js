@@ -1,4 +1,5 @@
-jobFramework.controller('PipelineController', ['$scope', '$http', '$interval', function ($scope, $http, $interval) {
+jobFramework.controller('PipelineController', ['$rootScope', '$scope', '$http', '$interval',
+	function ($rootScope, $scope, $http, $interval) {
 		console.log("PipelineController");
 
 		function reloadPipeline() {
@@ -19,18 +20,24 @@ jobFramework.controller('PipelineController', ['$scope', '$http', '$interval', f
 		reloadPipeline();
 		var reloadPipelineTimer = $interval(reloadPipeline, 4000);
 
-		$scope.getResultStatusFor = function(step, build) {
+		function getBuildState(step, build) {
 			var currentState = build.results[step.name];
 
 			if (currentState == null) {
-				return 'NOT_STARTED';
+				return {exitCode: -1, resultStatus: 'NOT_STARTED'};
 			}
 
-			return currentState.resultStatus;
+			return currentState;
+		}
+
+		$scope.getResultStatusFor = function(step, build) {
+			var currentState = getBuildState(step, build);
+			return $rootScope.getExitCodeStateFor(currentState.exitCode).description;
 		};
 
 		$scope.getStepCssClass = function(step, build) {
-			return ($scope.getResultStatusFor(step, build) == 'SUCCESS') ? 'build-success' : 'build-error';
+			var currentState = getBuildState(step, build);
+			return $rootScope.getCssColorForExitCode(currentState.exitCode);
 		};
 	}
 ]);

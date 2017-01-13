@@ -28,6 +28,7 @@ public class Build {
 	private Date finishedAt;
 	private Long duration;
 	private ResultStatus resultStatus;
+	private Integer exitCode;
 	private CurrentState currentState = CurrentState.RUNNING;
 
 	private Map<String, CurrentState> stepStates = new HashMap<>();
@@ -70,9 +71,10 @@ public class Build {
 		save();
 	}
 
-	public void setStepResult(Step step, int exitCode, String output) throws IOException, BuildException {
+	public void setStepResult(ResultStatus resultStatus, Step step, int exitCode, String output) throws IOException, BuildException {
 		BuildJobResult jobResult = results.computeIfAbsent(step.getName(), k -> new BuildJobResult());
 		jobResult.setExitCode(exitCode);
+		jobResult.setResultStatus(resultStatus);
 		jobResult.setOutput(output);
 
 		CurrentState stepCurrentState;
@@ -91,9 +93,14 @@ public class Build {
 		duration = finishedAt.getTime() - startedAt.getTime();
 
 		resultStatus = ResultStatus.SUCCESS;
+		exitCode = 0;
 		for (BuildJobResult buildJobResult : results.values()) {
 			if (!buildJobResult.getResultStatus().equals(ResultStatus.SUCCESS)) {
 				resultStatus = ResultStatus.getWorseStatus(resultStatus, buildJobResult.getResultStatus());
+			}
+
+			if (exitCode < buildJobResult.getExitCode()) {
+				exitCode = buildJobResult.getExitCode();
 			}
 		}
 

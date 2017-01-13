@@ -5,6 +5,7 @@ import com.odaniait.jobframework.exceptions.BuildException;
 import com.odaniait.jobframework.models.Build;
 import com.odaniait.jobframework.models.Pipeline;
 import com.odaniait.jobframework.models.QueueEntry;
+import com.odaniait.jobframework.models.ResultStatus;
 import com.odaniait.jobframework.notifications.NotificationManager;
 import com.odaniait.jobframework.pipeline.PipelineManager;
 import factories.PipelineFactory;
@@ -26,6 +27,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,11 +44,12 @@ public class ExecutorManagerTest {
 	private SecureRandom random = new SecureRandom();
 
 	@Before
-	public void setup() {
+	public void setup() throws IOException {
 		MockitoAnnotations.initMocks(this);
 
 		when(jobFrameworkConfig.getWorkspacePath()).thenReturn(new File("/tmp/job-framework-test/workspace"));
 		when(jobFrameworkConfig.getPipelinePath()).thenReturn("/tmp/job-framework-test/pipelines");
+		when(jobFrameworkConfig.getForExitCode(anyInt())).thenReturn(ResultStatus.SUCCESS);
 		when(jobFrameworkConfig.getBuildStateFile()).thenAnswer(invocation -> {
 			String randomString = new BigInteger(130, random).toString(32);
 			return new File("/tmp/job-framework-test/pipelines/state_" + randomString + ".yml");

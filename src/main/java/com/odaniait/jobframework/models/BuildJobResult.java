@@ -9,9 +9,4 @@ public class BuildJobResult {
 	private int exitCode;
 	private ResultStatus resultStatus;
 	private String output;
-
-	public void setExitCode(int exitCode) {
-		this.exitCode = exitCode;
-		resultStatus = ResultStatus.getForExitCode(exitCode);
-	}
 }
