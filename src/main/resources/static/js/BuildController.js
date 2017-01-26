@@ -48,4 +48,18 @@ jobFramework.controller('BuildController', ['$scope', '$http', '$interval', '$an
 			$anchorScroll();
 		}
 	};
+
+	$scope.triggerStep = function (stepName) {
+		$http.post("/api/pipelines/" + pipelineId + "/builds/" + buildNr + '/' + stepName).then(function (response) {
+			console.log("Success triggering buildstep", response.data);
+			$scope.build = response.data;
+
+			if ($scope.autoScrollToBottom) {
+				scrollToBottom();
+			}
+		}, function (err) {
+			console.error("Error occurred");
+			console.error(err);
+		});
+	};
 }]);

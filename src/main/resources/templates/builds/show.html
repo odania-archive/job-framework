@@ -62,6 +62,11 @@
 			</button>
 		</div>
 
+		<div ng-repeat="(stepName, currentState) in build.stepStates" ng-if="'WAITING' == currentState">
+			<h2 class="title">Waiting for Trigger on {{ stepName }}</h2>
+			<button ng-click="triggerStep(stepName)" class="btn btn-primary">Trigger</button>
+		</div>
+
 		<div ng-repeat="(stepName, result) in build.results">
 			<h2 class="title">
 				<div class="anchor" id="anchor-{{ stepName }}">{{ stepName }}</div>

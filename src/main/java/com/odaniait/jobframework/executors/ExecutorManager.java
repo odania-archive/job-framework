@@ -138,7 +138,7 @@ public class ExecutorManager {
 		return newBuilds;
 	}
 
-	private boolean startBuild(Pipeline pipeline, Build build) {
+	public boolean startBuild(Pipeline pipeline, Build build) {
 		BuildExecutor buildExecutor = new BuildExecutor(pipeline, build, this, jobFrameworkConfig);
 		Thread thread = new Thread(buildExecutor);
 		Map<Integer, Thread> buildListMap = buildThreads.computeIfAbsent(pipeline, k -> new HashMap<>());
@@ -148,7 +148,7 @@ public class ExecutorManager {
 		return true;
 	}
 
-	void finishBuild(Pipeline pipeline, Build build) {
+	void removeRunningBuild(Pipeline pipeline, Build build) {
 		lock.lock();
 
 		try {
@@ -174,7 +174,16 @@ public class ExecutorManager {
 			} else {
 				logger.error("Expected build to be in current state! Pipeline " + pipeline.getId() + " Build " + build.getBuildNr());
 			}
+		} finally {
+			lock.unlock();
+		}
+	}
 
+	void finishBuild(Pipeline pipeline, Build build) {
+		removeRunningBuild(pipeline, build);
+		lock.lock();
+
+		try {
 			PipelineState state = pipeline.getState();
 			ResultStatus lastState = state.getResultStatus();
 			state.setResultStatus(build.getResultStatus());

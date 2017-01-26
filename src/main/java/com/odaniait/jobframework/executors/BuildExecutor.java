@@ -74,6 +74,12 @@ public class BuildExecutor implements Runnable {
 			}
 		} else if (CurrentState.WAITING.equals(finished)) {
 			build.setCurrentState(CurrentState.WAITING);
+			try {
+				build. save();
+			} catch (BuildException | IOException e) {
+				logger.error("Error saving build", e);
+			}
+			executorManager.removeRunningBuild(pipeline, build);
 		}
 	}
 

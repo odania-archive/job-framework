@@ -11,14 +11,14 @@ buildscript {
 group 'com.odaniait'
 version '1.0-SNAPSHOT'
 
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'idea'
+
 jar {
 	baseName = 'com-odaniait-job-framework'
 	version =  '0.1.0'
 }
-
-apply plugin: 'java'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'idea'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8

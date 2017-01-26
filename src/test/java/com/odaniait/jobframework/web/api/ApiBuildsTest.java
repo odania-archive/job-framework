@@ -2,7 +2,9 @@ package com.odaniait.jobframework.web.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odaniait.jobframework.models.Build;
+import com.odaniait.jobframework.models.CurrentState;
 import com.odaniait.jobframework.models.Pipeline;
+import com.odaniait.jobframework.models.Step;
 import com.odaniait.jobframework.pipeline.PipelineManager;
 import factories.BuildFactory;
 import factories.PipelineFactory;
@@ -11,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,8 +21,12 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.Map;
+
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -68,5 +75,27 @@ public class ApiBuildsTest {
 
 		mvc.perform(request).andExpect(status().isOk()).
 			andExpect(jsonPath("$.buildNr", is(build.getBuildNr())));
+	}
+
+	@Test
+	public void testContinueBuild() throws Exception {
+		Pipeline pipeline = PipelineFactory.generate(2);
+		Build build = BuildFactory.generate();
+		pipeline.getState().getBuilds().put(build.getBuildNr(), build);
+		pipelineManager.getPipelines().put(pipeline.getId(), pipeline);
+
+		Step step1 = pipeline.getSteps().get(1);
+		Step step2 = pipeline.getSteps().get(1);
+
+		Map<String, CurrentState> stepStates = build.getStepStates();
+		stepStates.put(step1.getName(), CurrentState.SUCCESS);
+		stepStates.put(step2.getName(), CurrentState.WAITING);
+
+		MockHttpServletRequestBuilder request = post("/api/pipelines/" + pipeline.getId() + "/builds/" + build.getBuildNr() + "/" + step2.getName());
+		request.contentType(MediaType.APPLICATION_JSON);
+
+		mvc.perform(request).andExpect(status().isOk()).
+			andExpect(jsonPath("$.buildNr", is(build.getBuildNr())));
+		assertEquals(CurrentState.SUCCESS, stepStates.get(step2.getName()));
 	}
 }
