@@ -29,10 +29,11 @@ public class EmailNotifier implements Notifier {
 		String emails = parameter.get("emails");
 		String output = "";
 
-		for (BuildJobResult buildJobResult : build.getResults().values()) {
-			if (buildJobResult.getResultStatus().equals(ResultStatus.SUCCESS)) {
-				output += buildJobResult.getOutput();
-			}
+		for (String stepName : build.getResults().keySet()) {
+			BuildJobResult buildJobResult = build.getResults().get(stepName);
+
+			output += "Step: " + stepName + "\n\n";
+			output += buildJobResult.getOutput();
 		}
 
 		SimpleMailMessage message = new SimpleMailMessage();
