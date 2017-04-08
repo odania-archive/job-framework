@@ -20,8 +20,10 @@ COPY docker/data /srv
 COPY docker/startup.sh /startup.sh
 WORKDIR /opt/job-framework
 
-RUN adduser -h /srv -s /bin/bash -D -u 1000 jobs
+RUN mkdir -p /home/jobs
+RUN adduser -h /home/jobs -s /bin/bash -D -u 1000 jobs
 RUN chown -R jobs:jobs /srv
+RUN chown -R jobs:jobs /home/jobs
 RUN chown -R jobs:jobs /opt/job-framework
 
 COPY docker/build.sh /build.sh
