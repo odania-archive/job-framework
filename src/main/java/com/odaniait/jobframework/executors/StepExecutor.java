@@ -130,6 +130,7 @@ public class StepExecutor implements Runnable {
 		}
 
 		buildExecutor.executeTrigger(step);
+		buildExecutor.archive(step, stepBuildDir);
 	}
 
 	private void checkInterrupted() throws ThreadInterruptedException {

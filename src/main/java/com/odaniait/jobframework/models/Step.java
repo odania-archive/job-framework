@@ -17,6 +17,7 @@ public class Step {
 	private StepExecute execute = StepExecute.SEQUENCE;
 	private Set<String> onSuccess = new HashSet<>();
 	private Set<String> onError = new HashSet<>();
+	private Set<String> archive = new HashSet<>();
 
 	private List<Job> jobs = new ArrayList<>();
 }

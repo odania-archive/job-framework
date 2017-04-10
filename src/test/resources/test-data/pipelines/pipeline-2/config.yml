@@ -15,8 +15,14 @@ steps:
   - name: Step 2
     execute: SEQUENCE
     triggerType: AUTO
+    archive:
+      - output.log
     jobs:
       - name: "[Step 2] Job 1"
-        script: "echo 'pipeline-2 [Step 2] Job 1'"
-      - name: "[Step 2] Job 2"
-        script: "echo 'pipeline-2 [Step 2] Job 2'"
+        script: |2
+          echo 'pipeline-2 [Step 2] Job 1'
+          echo 'archive me pipeline-2 [Step 2] Job 1' >> output.log
+      - name:  "[Step 2] Job 2"
+        script: |2
+          echo 'pipeline-2 [Step 2] Job 2'
+          echo 'archive me pipeline-2 [Step 2] Job 2' >> output.log

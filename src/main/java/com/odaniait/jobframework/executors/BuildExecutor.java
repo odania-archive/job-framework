@@ -7,7 +7,9 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 
 public class BuildExecutor implements Runnable {
@@ -174,6 +176,30 @@ public class BuildExecutor implements Runnable {
 			for (String stepName : step.getOnError()) {
 				triggerSteps.add(stepName);
 				stepStates.put(stepName, CurrentState.TRIGGERED);
+			}
+		}
+	}
+
+	void archive(Step step, File stepBuildDir) {
+		if (!step.getArchive().isEmpty()) {
+			File targetFolder = new File(build.getBuildDir() + "/archive/" + step.getName());
+			if (!targetFolder.mkdirs()) {
+				logger.error("Error creating archive folder:" + targetFolder);
+			}
+
+			for  (String archiveFileName : step.getArchive()) {
+				File archiveFile = new File(stepBuildDir + "/" + archiveFileName);
+				if (archiveFile.exists()) {
+					File targetFile = new File(targetFolder + "/" + archiveFileName);
+					logger.info("Archiving: " + archiveFile + " (Target: " + targetFile + ")");
+					try {
+						Files.copy(archiveFile.toPath(), targetFile.toPath());
+					} catch (IOException e) {
+						logger.error("Error archiving file:" + archiveFile, e);
+					}
+				} else {
+					logger.error("File to archive does not exist: " + archiveFile);
+				}
 			}
 		}
 	}

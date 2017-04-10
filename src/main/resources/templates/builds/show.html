@@ -44,6 +44,13 @@
 				<td>{{ build.duration }}</td>
 			</tr>
 			<tr>
+				<th>Archive</th>
+				<td>
+					<a href="archive.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${build.buildNr} + '/archive'}"
+						 th:text="${'Archive'}"></a>
+				</td>
+			</tr>
+			<tr>
 				<th>Rerun</th>
 				<td>
 					<a href="rerun.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${build.buildNr} + '/rerun'}"

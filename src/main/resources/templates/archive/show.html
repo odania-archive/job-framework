@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" th:include="layouts/application :: page">
+<head>
+	<title>Job Framework - Pipeline <span th:text="${pipeline.name}"></span></title>
+</head>
+<body>
+<div th:fragment="content">
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		var pipelineId = [[${pipeline.id}]];
+		var buildNr = [[${build.buildNr}]];
+		/*]]>*/
+	</script>
+
+	<div>
+		<table class="table table-bordered table-striped">
+			<tbody>
+			<tr>
+				<th>ID</th>
+				<td>
+					<a href="view.html" th:href="@{'/pipelines/' + ${pipeline.id}}" th:text="${pipeline.id}"></a>
+				</td>
+			</tr>
+			<tr>
+				<th>Build ID</th>
+				<td th:text="${build.buildNr}"></td>
+			</tr>
+			<tr>
+				<th>Parameter</th>
+				<td th:text="${build.parameter}"></td>
+			</tr>
+			</tbody>
+		</table>
+
+		<table class="table table-bordered table-striped">
+			<tr th:each="archivedFile : ${archivedFiles}">
+				<th th:text="${archivedFile.name}"></th>
+				<td>
+					<span th:each="file : ${archivedFile.files}">
+						<a href="file.html" th:href="@{'/pipelines/' + ${pipeline.id} + '/builds/' + ${build.buildNr} + '/archiveFile?file=' + ${archivedFile.path} + '/' + ${file}}" th:text="${file}"></a>
+					</span>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>
+</body>
+</html>
