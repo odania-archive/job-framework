@@ -9,7 +9,7 @@ buildscript {
 }
 
 group 'com.odaniait'
-version '1.0-SNAPSHOT'
+version '0.1.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'

@@ -115,6 +115,7 @@ The pipeline configuration is defined in the config.yml folder.
 - Execution limit for jobs or steps
 - Reload config with or without waiting for finished jobs
 - Error View (Special Logging)
+- Folder View
 
 # FAQ
 
