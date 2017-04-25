@@ -5,8 +5,8 @@ RUN apk update && apk --no-cache add vim curl autoconf zlib-dev unzip bzip2 ca-c
 									bison readline-dev libxml2-dev git docker xfsprogs net-tools py-pip python-dev ansible gcc python-dev python3 \
 									linux-headers musl-dev iproute2 htop strace sshpass openssh-client \
 									bash libstdc++ sudo openssl-dev yaml-dev procps duplicity ncftp make \
-									ruby ruby-json ruby-io-console ruby-irb ruby-rake ruby-bundler ruby-dev && \
-						rm -rf /var/cache/apk/*
+									ruby ruby-json ruby-io-console ruby-irb ruby-rake ruby-bundler ruby-dev \
+									&& rm -rf /var/cache/apk/*
 
 # Add repo for runit & mongodb
 RUN echo "@edge http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories
