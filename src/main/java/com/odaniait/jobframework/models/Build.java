@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.odaniait.jobframework.exceptions.BuildException;
+import com.odaniait.jobframework.support.HumanTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ public class Build {
 	private Date startedAt = new Date();
 	private Date finishedAt;
 	private Long duration;
+	private String humanDuration;
 	private ResultStatus resultStatus;
 	private Integer exitCode;
 	private CurrentState currentState = CurrentState.RUNNING;
@@ -91,6 +93,7 @@ public class Build {
 	public void finish() throws IOException, BuildException {
 		finishedAt = new Date();
 		duration = finishedAt.getTime() - startedAt.getTime();
+		humanDuration = HumanTime.fromDuration(duration);
 
 		resultStatus = ResultStatus.SUCCESS;
 		exitCode = 0;

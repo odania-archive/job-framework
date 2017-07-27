@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.odaniait.jobframework.exceptions.BuildException;
+import com.odaniait.jobframework.support.HumanTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
@@ -26,6 +27,7 @@ public class PipelineState implements Serializable {
 	private Integer lastSuccessfulRun;
 	private Integer lastFailedRun;
 	private Long lastDuration;
+	private String humanLastDuration;
 
 	private ResultStatus resultStatus;
 	private Integer exitCode;
@@ -48,6 +50,7 @@ public class PipelineState implements Serializable {
 			lastFailedRun = build.getBuildNr();
 		}
 		lastDuration = build.getDuration();
+		humanLastDuration = HumanTime.fromDuration(lastDuration);
 	}
 
 	public void initialize(File pipelineDirectory, String pipelineWorkspacePath) {
