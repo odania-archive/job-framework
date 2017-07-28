@@ -5,7 +5,7 @@ RUN apk update && apk --no-cache add vim curl autoconf zlib-dev unzip bzip2 ca-c
 									bison readline-dev libxml2-dev git docker xfsprogs net-tools py-pip python-dev ansible gcc python-dev python3 \
 									linux-headers musl-dev iproute2 htop strace sshpass openssh-client \
 									bash libstdc++ sudo openssl-dev yaml-dev procps duplicity ncftp make \
-									ruby ruby-json ruby-io-console ruby-irb ruby-rake ruby-bundler ruby-dev \
+									ruby ruby-json ruby-io-console ruby-irb ruby-rake ruby-bundler ruby-dev go \
 									&& rm -rf /var/cache/apk/*
 
 # Add repo for runit & mongodb
@@ -28,6 +28,14 @@ RUN chown -R jobs:jobs /opt/job-framework
 
 COPY docker/build.sh /build.sh
 RUN /build.sh
+
+# AWS ECR Login Helper for docker
+RUN mkdir -p /usr/lib/go/src/github.com/awslabs && \
+	git clone https://github.com/awslabs/amazon-ecr-credential-helper.git /usr/lib/go/src/github.com/awslabs/amazon-ecr-credential-helper && \
+	cd /usr/lib/go/src/github.com/awslabs/amazon-ecr-credential-helper && \
+	make && mv bin/local/docker-credential-ecr-login /usr/local/bin/docker-credential-ecr-login
+ADD docker/docker-config.json /srv/.docker/config.json
+
 
 # Allow installation of ansible
 RUN echo "jobs ALL=(root) NOPASSWD:/usr/bin/pip install ansible" >> /etc/sudoers
