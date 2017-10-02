@@ -25,7 +25,8 @@ public class JobScheduler {
 	@Autowired
 	private SchedulerFactoryBean scheduler;
 
-	public void init() throws Exception {
+	public void reload() throws SchedulerException, ParseException {
+		scheduler.getObject().clear();
 		updateJobs();
 	}
 

@@ -7,7 +7,7 @@
 <div th:fragment="content">
 	<p th:text="'Info'"/>
 
-	<table class="table table-bordered table-striped">
+	<table class="table table-bordered table-striped" ng-controller="InfoController">
 		<tr>
 			<th>Queue Size</th>
 			<td th:text="${buildState.queued.size()}"></td>
@@ -24,8 +24,12 @@
 			<th>Views</th>
 			<td th:text="${views.size()}"></td>
 		</tr>
+		<tr>
+			<td colspan="2">
+				<button class="btn btn-danger" ng-click="reloadConfig()">Reload Configuration from Disk</button>
+			</td>
+		</tr>
 	</table>
-
 </div>
 </body>
 </html>

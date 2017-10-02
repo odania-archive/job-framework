@@ -49,6 +49,11 @@ public class JobFrameworkConfig {
 		return settings;
 	}
 
+	public Settings reloadSettings() throws IOException {
+		this.settings = null;
+		return getSettings();
+	}
+
 	public File getBuildStateFile() {
 		return new File(baseDirectory + "/buildState.yml");
 	}

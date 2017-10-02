@@ -48,13 +48,24 @@ public class ExecutorManager {
 			try {
 				buildState = mapper.readValue(buildStateFile, BuildState.class);
 
-				for (String pipelineId : buildState.getCurrent().keySet()) {
+				Set<String> invalidPipelines = new HashSet<>(); // Removed pipelines
+				Map<String, Set<Integer>> currentBuildState = buildState.getCurrent();
+				for (String pipelineId : currentBuildState.keySet()) {
 					Pipeline pipeline = pipelineManager.getPipeline(pipelineId);
 
-					for (Integer buildNr : buildState.getCurrent().get(pipelineId)) {
-						Build build = pipeline.getState().getBuilds().get(buildNr);
-						startBuild(pipeline, build);
+					if (pipeline == null) {
+						invalidPipelines.add(pipelineId);
+					} else {
+						for (Integer buildNr : currentBuildState.get(pipelineId)) {
+							Build build = pipeline.getState().getBuilds().get(buildNr);
+							startBuild(pipeline, build);
+						}
 					}
+				}
+
+				// Remove running pipelines that have been removed from state
+				for (String pipelineId : invalidPipelines) {
+					currentBuildState.remove(pipelineId);
 				}
 			} catch (IOException e) {
 				logger.error("Error loading build state", e);

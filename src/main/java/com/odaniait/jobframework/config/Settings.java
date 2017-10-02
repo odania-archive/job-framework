@@ -13,7 +13,7 @@ public class Settings {
 	private Map<String, ExitCodeState> exitCodeStates = new HashMap<>();
 	private Map<String, View> views = new HashMap<>();
 
-	public Settings() {
+	Settings() {
 		exitCodeStates.put("0", new ExitCodeState(ResultStatus.SUCCESS, "green", "Success"));
 		exitCodeStates.put("-1", new ExitCodeState(ResultStatus.ABORTED, "darkgray", "Aborted"));
 		exitCodeStates.put("default", new ExitCodeState(ResultStatus.FAILED, "red", "Failed"));

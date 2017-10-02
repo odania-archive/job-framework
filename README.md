@@ -45,6 +45,13 @@ docker socket to the container
 
 Now you can use the docker of the host inside the container.
 
+#### Docker AWS ECR Registry
+
+The [Credential Helper for the AWS](https://github.com/awslabs/amazon-ecr-credential-helper) is installed.
+In order to need it you should extend the image and place your credentials in
+
+	~/.aws/credentials
+
 ## Pipelines
 
 Everything that can be defined is a pipeline. A pipeline consists of multiple steps.

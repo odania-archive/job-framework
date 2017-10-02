@@ -26,7 +26,7 @@ public class PipelineManager {
 	private Map<String, Pipeline> pipelines = new HashMap<>();
 
 	@Getter
-	private final Map<String, View> views;
+	private Map<String, View> views;
 	private final JobFrameworkConfig jobFrameworkConfig;
 
 	@Autowired
@@ -35,11 +35,12 @@ public class PipelineManager {
 		this.views = jobFrameworkConfig.getSettings().getViews();
 	}
 
-	public void read() throws IOException {
+	public synchronized void read() throws IOException {
 		readPipelines();
+		this.views = jobFrameworkConfig.getSettings().getViews();
 	}
 
-	public void readPipelines() throws IOException {
+	private void readPipelines() throws IOException {
 		File pipelinePath = new File(jobFrameworkConfig.getPipelinePath());
 		File[] fList = pipelinePath.listFiles();
 
