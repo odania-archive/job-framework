@@ -3,12 +3,12 @@ MAINTAINER Mike Petersen <mike@odania-it.de>
 
 ENV TERM xterm
 RUN apt-get update && apt-get -y install vim curl autoconf zlib1g-dev unzip bzip2 ca-certificates libffi-dev libgdbm3  \
-									bison libreadline-dev libxml2-dev git docker xfsprogs net-tools python-pip python-dev ansible gcc python-dev python3 \
-									linux-headers-generic iproute2 htop strace sshpass openssh-client build-essential \
-									bash sudo libssh-dev libyaml-dev procps duplicity ncftp make g++ \
-									ruby ruby-json rake ruby-bundler ruby-dev golang mongo-tools openjdk-8-jdk \
-									apt-transport-https software-properties-common wget python-software-properties \
-									&& rm -rf /var/lib/apt/lists/*
+	bison libreadline-dev libxml2-dev git docker xfsprogs net-tools python-pip python-dev ansible gcc python-dev python3 \
+	linux-headers-generic iproute2 htop strace sshpass openssh-client build-essential \
+	bash sudo libssh-dev libyaml-dev procps duplicity ncftp make g++ \
+	ruby ruby-json rake ruby-bundler ruby-dev golang mongo-tools openjdk-8-jdk \
+	apt-transport-https software-properties-common wget python-software-properties \
+	&& rm -rf /var/lib/apt/lists/*
 
 # Install docker
 RUN curl -fsSL get.docker.com -o get-docker.sh
