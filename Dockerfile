@@ -1,12 +1,12 @@
-FROM openjdk:8-jdk-alpine
+FROM ubuntu:17.10
 MAINTAINER Mike Petersen <mike@odania-it.de>
 
-RUN apk update && apk --no-cache add vim curl autoconf zlib-dev unzip bzip2 ca-certificates libffi-dev gdbm  \
-									bison readline-dev libxml2-dev git docker xfsprogs net-tools py-pip python-dev ansible gcc python-dev python3 \
-									linux-headers musl-dev iproute2 htop strace sshpass openssh-client \
-									bash libstdc++ sudo openssl-dev yaml-dev procps duplicity ncftp make g++ \
-									ruby ruby-json ruby-io-console ruby-irb ruby-rake ruby-bundler ruby-dev go mongodb-tools \
-									&& rm -rf /var/cache/apk/*
+RUN apt-get update && apt-get -y install vim curl autoconf zlib1g-dev unzip bzip2 ca-certificates libffi-dev libgdbm3  \
+									bison libreadline-dev libxml2-dev git docker xfsprogs net-tools python-pip python-dev ansible gcc python-dev python3 \
+									linux-headers-generic iproute2 htop strace sshpass openssh-client build-essential \
+									bash sudo libssh-dev libyaml-dev procps duplicity ncftp make g++ \
+									ruby ruby-json rake ruby-bundler ruby-dev golang mongo-tools openjdk-8-jdk \
+									&& rm -rf /var/lib/apt/lists/*
 
 COPY . /opt/job-framework
 COPY docker/data /srv
@@ -14,7 +14,7 @@ COPY docker/startup.sh /startup.sh
 WORKDIR /opt/job-framework
 
 RUN mkdir -p /home/jobs
-RUN adduser -h /home/jobs -s /bin/bash -D -u 1000 jobs
+RUN useradd -d /home/jobs -s /bin/bash -u 1000 jobs
 RUN chown -R jobs:jobs /srv
 RUN chown -R jobs:jobs /home/jobs
 RUN chown -R jobs:jobs /opt/job-framework
