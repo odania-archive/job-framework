@@ -1,6 +1,7 @@
 FROM ubuntu:17.10
 MAINTAINER Mike Petersen <mike@odania-it.de>
 
+ENV TERM xterm
 RUN apt-get update && apt-get -y install vim curl autoconf zlib1g-dev unzip bzip2 ca-certificates libffi-dev libgdbm3  \
 									bison libreadline-dev libxml2-dev git docker xfsprogs net-tools python-pip python-dev ansible gcc python-dev python3 \
 									linux-headers-generic iproute2 htop strace sshpass openssh-client build-essential \
@@ -9,11 +10,9 @@ RUN apt-get update && apt-get -y install vim curl autoconf zlib1g-dev unzip bzip
 									apt-transport-https software-properties-common wget python-software-properties \
 									&& rm -rf /var/lib/apt/lists/*
 
-# currently no package for artful
-RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-RUN echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu zesty stable" > /etc/apt/sources.list.d/docker.list
-
-RUN apt-get update && apt-get -y install docker-ce && rm -rf /var/lib/apt/lists/*
+# Install docker
+RUN curl -fsSL get.docker.com -o get-docker.sh
+RUN sh get-docker.sh
 
 COPY . /opt/job-framework
 COPY docker/data /srv
@@ -28,7 +27,6 @@ RUN chown -R jobs:jobs /opt/job-framework
 
 COPY docker/build.sh /build.sh
 RUN /build.sh
-
 
 # AWS ECR Login Helper for docker
 RUN mkdir -p /usr/lib/go/src/github.com/awslabs && \
