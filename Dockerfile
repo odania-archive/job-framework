@@ -6,7 +6,14 @@ RUN apt-get update && apt-get -y install vim curl autoconf zlib1g-dev unzip bzip
 									linux-headers-generic iproute2 htop strace sshpass openssh-client build-essential \
 									bash sudo libssh-dev libyaml-dev procps duplicity ncftp make g++ \
 									ruby ruby-json rake ruby-bundler ruby-dev golang mongo-tools openjdk-8-jdk \
+									apt-transport-https software-properties-common wget python-software-properties \
 									&& rm -rf /var/lib/apt/lists/*
+
+# currently no package for artful
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+RUN echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu zesty stable" > /etc/apt/sources.list.d/docker.list
+
+RUN apt-get update && apt-get -y install docker-ce && rm -rf /var/lib/apt/lists/*
 
 COPY . /opt/job-framework
 COPY docker/data /srv
@@ -22,13 +29,13 @@ RUN chown -R jobs:jobs /opt/job-framework
 COPY docker/build.sh /build.sh
 RUN /build.sh
 
+
 # AWS ECR Login Helper for docker
 RUN mkdir -p /usr/lib/go/src/github.com/awslabs && \
 	git clone https://github.com/awslabs/amazon-ecr-credential-helper.git /usr/lib/go/src/github.com/awslabs/amazon-ecr-credential-helper && \
 	cd /usr/lib/go/src/github.com/awslabs/amazon-ecr-credential-helper && \
 	make && mv bin/local/docker-credential-ecr-login /usr/local/bin/docker-credential-ecr-login
 ADD docker/docker-config.json /srv/.docker/config.json
-
 
 # Allow installation of ansible
 RUN echo "jobs ALL=(root) NOPASSWD:/usr/bin/pip install ansible" >> /etc/sudoers
