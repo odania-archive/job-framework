@@ -41,7 +41,7 @@ dependencies {
 	compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf'
 	compile group: 'org.springframework', name: 'spring-context-support', version: '4.3.9.RELEASE' // Includes spring's support classes for quartz and mail
 
-	compile group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.0'
+	compile group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.2'
 
 	compile group: 'org.projectlombok', name: 'lombok', version: '1.16.18'
 
