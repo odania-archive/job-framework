@@ -49,7 +49,7 @@ dependencies {
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.10'
 	compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.8.10'
 
-	compile group: 'javax.mail', name: 'javax.mail-api', version: '1.6.0'
+	compile group: 'javax.mail', name: 'javax.mail-api', version: '1.6.2'
 
 	// Frontend
 	compile group: 'org.webjars', name: 'webjars-locator', version: '0.32-1'
